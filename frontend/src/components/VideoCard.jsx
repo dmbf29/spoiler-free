@@ -30,18 +30,20 @@ export default function VideoCard({ video }) {
             {video.competition?.name && ` – ${video.competition.name}`}
           </span>
         )}
-        {date && (
-          <span>
-            <i className="meta-icon fa-solid fa-calendar" aria-hidden="true" />
-            {date}
-          </span>
-        )}
-        {duration && (
-          <span>
-            <i className="meta-icon fa-solid fa-stopwatch" aria-hidden="true" />
-            {duration}
-          </span>
-        )}
+        <div className="timing">
+          {date && (
+            <span>
+              <i className="meta-icon fa-solid fa-calendar" aria-hidden="true" />
+              {date}
+            </span>
+          )}
+          {duration && (
+            <span>
+              <i className="meta-icon fa-solid fa-stopwatch" aria-hidden="true" />
+              {duration}
+            </span>
+          )}
+        </div>
       </div>
 
       {playing ? (

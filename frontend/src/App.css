@@ -132,6 +132,10 @@
   margin-bottom: 14px;
 }
 
+.card__meta .fa-stopwatch {
+  margin-left: 14px;
+}
+
 .card__meta .meta-icon {
   margin-right: 6px;
   opacity: 0.8;
@@ -255,4 +259,11 @@
 
 .state--error {
   color: #f0a5a5;
+}
+
+/* --- Mobile --- */
+@media (max-width: 600px) {
+  .card__meta {
+    flex-direction: column;
+  }
 }
