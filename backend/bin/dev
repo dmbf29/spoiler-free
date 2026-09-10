@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+if ! gem list --silent --installed foreman; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+
+# Runs the Rails API server and the Solid Queue worker together.
+exec foreman start -f Procfile.dev "$@"

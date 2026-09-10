@@ -1,0 +1,12 @@
+nbc_sports:
+  name: NBC Sports
+  youtube_channel_id: UCqZQlzSHbVJrwrn5XvzrzcA
+  youtube_url: https://www.youtube.com/@NBCSports
+  uploads_playlist_id: UUqZQlzSHbVJrwrn5XvzrzcA
+  active: true
+
+inactive_channel:
+  name: Dormant Channel
+  youtube_channel_id: UC000000000000000000000
+  youtube_url: https://www.youtube.com/@dormant
+  active: false

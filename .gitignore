@@ -1,0 +1,4 @@
+.DS_Store
+*.log
+
+# Env files live inside backend/ and frontend/ and are ignored there.

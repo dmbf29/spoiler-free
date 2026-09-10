@@ -1,0 +1,38 @@
+everton_v_man_utd:
+  channel: nbc_sports
+  competition: premier_league
+  youtube_video_id: pl_everton_manutd
+  original_title: "Everton v. Manchester United | PREMIER LEAGUE HIGHLIGHTS | 9/6/2026 | NBC Sports"
+  safe_title: "Everton vs Manchester United"
+  published_at: <%= 2.hours.ago.to_fs(:db) %>
+  duration_seconds: 512
+  is_highlight: true
+  region_restricted: true
+  embeddable: true
+  raw_payload: "{}"
+
+brentford_v_sunderland:
+  channel: nbc_sports
+  competition: premier_league
+  youtube_video_id: pl_brentford_sunderland
+  original_title: "Brentford v. Sunderland | PREMIER LEAGUE HIGHLIGHTS | 9/5/2026 | NBC Sports"
+  safe_title: "Brentford vs Sunderland"
+  published_at: <%= 1.day.ago.to_fs(:db) %>
+  duration_seconds: 733
+  is_highlight: true
+  region_restricted: false
+  embeddable: true
+  raw_payload: "{}"
+
+random_non_highlight:
+  channel: nbc_sports
+  competition:
+  youtube_video_id: misc_reaction_video
+  original_title: "INSTANT REACTION to the weekend's results | NBC Sports"
+  safe_title:
+  published_at: <%= 3.days.ago.to_fs(:db) %>
+  duration_seconds: 240
+  is_highlight: false
+  region_restricted: false
+  embeddable: true
+  raw_payload: "{}"

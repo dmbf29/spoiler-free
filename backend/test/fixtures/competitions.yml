@@ -1,0 +1,17 @@
+premier_league:
+  name: Premier League
+  slug: premier-league
+  sport: soccer
+  active: true
+
+champions_league:
+  name: Champions League
+  slug: champions-league
+  sport: soccer
+  active: false
+
+college_football:
+  name: College Football
+  slug: college-football
+  sport: football
+  active: false
