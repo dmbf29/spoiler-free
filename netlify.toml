@@ -1,0 +1,29 @@
+# Netlify config for the React (Vite) frontend.
+# The repo has backend/ and frontend/ side by side, so point Netlify at
+# frontend/ as the base — no build settings needed in the Netlify UI.
+
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# --- API proxy -------------------------------------------------------------
+# In dev, vite.config.js proxies /api -> localhost:3002. Reproduce that in
+# production so the browser only ever talks to the Netlify origin (keeps
+# VITE_API_BASE_URL as the relative "/api/v1" and avoids CORS entirely).
+[[redirects]]
+  from = "/api/*"
+  to = "https://spoiler-free-7f29d24c36d6.herokuapp.com/api/:splat"
+  status = 200
+  force = true
+
+# --- SPA fallback --------------------------------------------------------
+# React Router routes (/:sportSlug, /:sportSlug/:competitionSlug) are
+# bookmarkable — every path must serve index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
