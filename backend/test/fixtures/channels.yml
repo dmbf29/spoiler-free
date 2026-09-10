@@ -5,6 +5,13 @@ nbc_sports:
   uploads_playlist_id: UUqZQlzSHbVJrwrn5XvzrzcA
   active: true
 
+cbs_golazo:
+  name: CBS Sports Golazo
+  youtube_channel_id: UCET00YnetHT7tOpu12v8jxg
+  youtube_url: https://www.youtube.com/@cbssportsgolazo
+  uploads_playlist_id: UUET00YnetHT7tOpu12v8jxg
+  active: true
+
 inactive_channel:
   name: Dormant Channel
   youtube_channel_id: UC000000000000000000000

@@ -8,7 +8,7 @@ champions_league:
   name: Champions League
   slug: champions-league
   sport: soccer
-  active: false
+  active: true
 
 college_football:
   name: College Football

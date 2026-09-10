@@ -10,6 +10,9 @@ module Classification
     # just preserve left/right order.
     def split(text)
       segment = text.to_s.split("|").first.to_s.strip
+      # CBS Golazo appends the format to the matchup itself, before the first
+      # pipe: "Liverpool vs. Atlético Madrid: Extended Highlights".
+      segment = segment.sub(/:?\s*(?:extended |match |game )?highlights\s*\z/i, "").strip
       return if segment.empty?
 
       SEPARATORS.each do |sep|

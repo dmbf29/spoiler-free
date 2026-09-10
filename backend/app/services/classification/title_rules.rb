@@ -4,9 +4,9 @@ module Classification
   # — nothing else in the pipeline changes.
   module TitleRules
     REGISTRY = {
-      "premier-league" => PremierLeagueTitleRule
+      "premier-league" => PremierLeagueTitleRule,
+      "champions-league" => ChampionsLeagueTitleRule
       # V2:
-      # "champions-league" => ChampionsLeagueTitleRule,
       # "college-football" => CollegeFootballTitleRule,
     }.freeze
 
