@@ -8,7 +8,7 @@ export default function App() {
       <header className="app__header">
         <h1 className="app__title">Spoiler Free Highlights</h1>
         <p className="app__tagline">
-          Game highlights with no scores, no winners, no spoilers.
+          No scores, no spoilers, just action.
         </p>
       </header>
 

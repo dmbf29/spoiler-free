@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: ['.ngrok-free.app'],
     // 5173 is often taken by other local projects; pin a dedicated port and
     // fail loudly rather than silently drifting to another one.
     port: 5180,
