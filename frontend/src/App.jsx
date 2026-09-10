@@ -10,6 +10,15 @@ export default function App() {
         <p className="app__tagline">
           No scores, no spoilers, just action.
         </p>
+        <a
+          className="bmc-link"
+          href="https://buymeacoffee.com/dougberks"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src="/buymeacoffee-logo.png" alt="" className="bmc-link__logo" />
+          Buy me a coffee
+        </a>
       </header>
 
       <Routes>

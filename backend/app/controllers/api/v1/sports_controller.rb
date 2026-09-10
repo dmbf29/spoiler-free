@@ -8,7 +8,7 @@ module Api
                       .where(competitions: { active: true })
                       .distinct
                       .order(:name)
-                      .includes(:competitions)
+                      .includes(competitions: { photo_attachment: :blob })
 
         render json: SportSerializer.list(sports)
       end

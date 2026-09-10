@@ -19,4 +19,27 @@ namespace :youtube do
     FetchYoutubeVideosJob.perform_later
     puts "Enqueued FetchYoutubeVideosJob"
   end
+
+  desc "Re-run the classifier over already-stored uploads (use after activating a " \
+       "competition on a channel that was synced earlier). No API calls."
+  task reclassify: :environment do
+    classifier = VideoClassifier.new(competitions: Competition.active.includes(:sport))
+    promoted = 0
+
+    Video.where(is_highlight: false).find_each do |video|
+      upload = Youtube::Upload.new("snippet" => { "title" => video.original_title })
+      result = classifier.classify(upload)
+      next unless result.highlight?
+
+      video.update!(
+        competition: result.competition,
+        safe_title: result.safe_title,
+        is_highlight: true
+      )
+      promoted += 1
+      puts "  + #{result.competition.slug}: #{result.safe_title}"
+    end
+
+    puts "Reclassified #{promoted} stored upload(s) into highlights."
+  end
 end

@@ -20,11 +20,26 @@ class VideoSerializer
       duration_iso8601: @video.duration_iso8601,
       youtube_video_id: @video.youtube_video_id,
       region_restricted: @video.region_restricted,
+      region_restriction: region_restriction_json,
       embeddable: @video.embeddable
     }
   end
 
   private
+
+  # Normalizes the raw YouTube shape into { mode:, regions: } (or nil). Region
+  # codes aren't spoilers, so unlike original_title/raw_payload this is safe to
+  # expose.
+  def region_restriction_json
+    data = @video.region_restriction
+    return if data.blank?
+
+    if data["allowed"].present?
+      { mode: "allowed", regions: Array(data["allowed"]) }
+    elsif data["blocked"].present?
+      { mode: "blocked", regions: Array(data["blocked"]) }
+    end
+  end
 
   def sport_json
     sport = @video.competition&.sport

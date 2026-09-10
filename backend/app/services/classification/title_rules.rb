@@ -5,9 +5,9 @@ module Classification
   module TitleRules
     REGISTRY = {
       "premier-league" => PremierLeagueTitleRule,
-      "champions-league" => ChampionsLeagueTitleRule
-      # V2:
-      # "college-football" => CollegeFootballTitleRule,
+      "champions-league" => ChampionsLeagueTitleRule,
+      "carabao-cup" => CarabaoCupTitleRule,
+      "college-football" => CollegeFootballTitleRule
     }.freeze
 
     module_function

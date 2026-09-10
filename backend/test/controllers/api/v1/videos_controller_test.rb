@@ -31,6 +31,19 @@ class Api::V1::VideosControllerTest < ActionDispatch::IntegrationTest
     refute_includes ids, "misc_reaction_video"
   end
 
+  test "exposes normalized region_restriction (not the raw YouTube shape)" do
+    get "/api/v1/videos"
+    body = JSON.parse(response.body)
+
+    restricted = body.find { |v| v["youtube_video_id"] == "pl_everton_manutd" }
+    assert_equal true, restricted["region_restricted"]
+    assert_equal "allowed", restricted.dig("region_restriction", "mode")
+    assert_equal %w[US GU PR VI], restricted.dig("region_restriction", "regions")
+
+    unrestricted = body.find { |v| v["youtube_video_id"] == "pl_brentford_sunderland" }
+    assert_nil unrestricted["region_restriction"]
+  end
+
   test "includes the sport icon and a competition photo_url key" do
     get "/api/v1/videos"
     video = JSON.parse(response.body).first

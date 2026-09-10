@@ -84,6 +84,7 @@ class ChannelSynchronizer
       duration_seconds: upload.duration_seconds,
       is_highlight: result.highlight?,
       region_restricted: upload.region_restricted?,
+      region_restriction: upload.region_restriction,
       embeddable: upload.embeddable?,
       raw_payload: upload.raw
     )

@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import SportLabel from './SportLabel.jsx'
 
 // `sports` is the payload from GET /api/v1/sports:
-// [{ name, slug, icon, competitions: [{ name, slug }] }]
+// [{ name, slug, icon, competitions: [{ name, slug, photo_url }] }]
 export default function FilterBar({ sports, sportSlug }) {
   const activeSport = sports.find((s) => s.slug === sportSlug)
 
@@ -29,6 +29,9 @@ export default function FilterBar({ sports, sportSlug }) {
                 to={`/${activeSport.slug}/${competition.slug}`}
                 className={chipClass}
               >
+                {competition.photo_url && (
+                  <img className="chip__logo" src={competition.photo_url} alt="" />
+                )}
                 {competition.name}
               </NavLink>
             ))}

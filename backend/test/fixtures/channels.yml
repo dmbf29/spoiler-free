@@ -12,6 +12,20 @@ cbs_golazo:
   uploads_playlist_id: UUET00YnetHT7tOpu12v8jxg
   active: true
 
+cfb_on_fox:
+  name: CFB ON FOX
+  youtube_channel_id: UCpwix-O6ceqMgdxhqIynzFA
+  youtube_url: https://www.youtube.com/@cfbonfox
+  uploads_playlist_id: UUpwix-O6ceqMgdxhqIynzFA
+  active: true
+
+espn_cfb:
+  name: ESPN College Football
+  youtube_channel_id: UCzRWWsFjqHk1an4OnVPsl9g
+  youtube_url: https://www.youtube.com/@espncfb
+  uploads_playlist_id: UUzRWWsFjqHk1an4OnVPsl9g
+  active: true
+
 inactive_channel:
   name: Dormant Channel
   youtube_channel_id: UC000000000000000000000

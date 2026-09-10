@@ -10,8 +10,14 @@ champions_league:
   sport: soccer
   active: true
 
+carabao_cup:
+  name: Carabao Cup
+  slug: carabao-cup
+  sport: soccer
+  active: true
+
 college_football:
   name: College Football
   slug: college-football
   sport: football
-  active: false
+  active: true

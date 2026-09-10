@@ -30,16 +30,41 @@ competitions = [
     video_naming_convention: "Home vs. Away: Extended Highlights | UCL League Phase MD N | CBS Sports Golazo"
   },
   {
+    slug: "carabao-cup",
+    name: "Carabao Cup",
+    sport: soccer,
+    active: true,
+    video_naming_convention: "Home vs. Away: Extended Highlights | Carabao Cup | CBS Sports Golazo"
+  },
+  {
     slug: "college-football",
     name: "College Football",
     sport: football,
-    active: false,
-    video_naming_convention: "Away vs. Home | COLLEGE FOOTBALL HIGHLIGHTS | M/D/YY | NBC Sports"
+    active: true,
+    video_naming_convention: "Away vs. Home | COLLEGE FOOTBALL HIGHLIGHTS | M/D/YY | NBC Sports " \
+      "(also 'CFB ON FOX' and 'ESPN College Football', which vary the wording)"
   }
 ]
 
 competitions.each do |attrs|
   Competition.find_or_initialize_by(slug: attrs[:slug]).update!(attrs.except(:slug))
+end
+
+# --- Competition crests -------------------------------------------------------
+# Attach any league crest checked in under db/seeds/crests/<slug>.<ext>.
+# Idempotent: skips a competition whose attached blob already matches the file.
+Dir[Rails.root.join("db/seeds/crests/*")].each do |path|
+  slug = File.basename(path, ".*")
+  competition = Competition.find_by(slug: slug) or next
+
+  checksum = OpenSSL::Digest::MD5.file(path).base64digest
+  next if competition.photo.attached? && competition.photo.blob.checksum == checksum
+
+  competition.photo.attach(
+    io: File.open(path),
+    filename: File.basename(path),
+    content_type: Marcel::MimeType.for(Pathname.new(path))
+  )
 end
 
 # --- Channels ------------------------------------------------------------------
@@ -56,6 +81,20 @@ channels = [
     name: "CBS Sports Golazo",
     youtube_url: "https://www.youtube.com/@cbssportsgolazo",
     uploads_playlist_id: "UUET00YnetHT7tOpu12v8jxg",
+    active: true
+  },
+  {
+    youtube_channel_id: "UCpwix-O6ceqMgdxhqIynzFA",
+    name: "CFB ON FOX",
+    youtube_url: "https://www.youtube.com/@cfbonfox",
+    uploads_playlist_id: "UUpwix-O6ceqMgdxhqIynzFA",
+    active: true
+  },
+  {
+    youtube_channel_id: "UCzRWWsFjqHk1an4OnVPsl9g",
+    name: "ESPN College Football",
+    youtube_url: "https://www.youtube.com/@espncfb",
+    uploads_playlist_id: "UUzRWWsFjqHk1an4OnVPsl9g",
     active: true
   }
 ]

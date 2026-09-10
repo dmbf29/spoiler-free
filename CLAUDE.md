@@ -56,27 +56,33 @@ The shell's default Node is v14 (unusable). `nvm use` reads `frontend/.nvmrc` (2
   Production is one `DATABASE_URL`. Don't reintroduce the multi-database layout.
 - **`sport` is derived per-video** via `video.competition.sport`, never stored on
   `Channel` — one channel (NBC Sports) carries multiple sports.
-- A competition is classified and shown only when `active: true`. Premier League
-  and Champions League are active; College Football is seeded but inactive.
+- A competition is classified and shown only when `active: true`. Premier League,
+  Champions League, Carabao Cup, and College Football are all active.
 - Ruby style: `rubocop-rails-omakase`. Tests: Minitest (`bin/rails test`).
 
 ## Video classification (`app/services/`)
 
 Deterministic, title-based, no AI. Kept out of the job and the YouTube client.
 
-- `VideoClassifier#classify(upload)` — global include (`/highlights/i`) + exclude
-  keyword filters (reaction, analysis, press conference, pre/postgame, preview,
-  predictions…), then tries each active competition's title rule.
+- `VideoClassifier#classify(upload)` — exclude keyword filters (reaction,
+  analysis, press conference, pre/postgame, preview, predictions…), then tries
+  each active competition's title rule. Falls back to a global `/highlights/i`
+  include check only when no rule claims the upload (some channels, e.g. ESPN/FOX
+  college football, omit the word), so a positive rule match always wins.
 - `Classification::TitleRules::REGISTRY` — maps a competition slug to a rule class
-  (`PremierLeagueTitleRule`, `ChampionsLeagueTitleRule`).
+  (`PremierLeagueTitleRule`, `ChampionsLeagueTitleRule`, `CollegeFootballTitleRule`).
 - `Classification::MatchupParser` — splits "Home v. Away" / "Home vs. Away" and
-  strips NBC/CBS suffixes ("(En Español)", ": Extended Highlights").
+  strips channel cruft: NBC/CBS suffixes ("(En Español)", ": Extended Highlights"),
+  the FOX "🏈 FOX College Football" tail, an ESPN hype phrase before the matchup
+  (set off by an emoji), and AP-ranking prefixes ("No. 12 ", "#3 ").
 - `Classification::Result` — `highlight?`, `competition`, `safe_title`, `reason`.
 
 **To add a competition**: add a `*TitleRule` (implements `safe_title_for(title)`),
 register it in `TitleRules`, add the competition to `db/seeds.rb` with
 `active: true`, add a channel if needed, dry-run classify against real uploads,
-then sync. Add classifier tests with real title strings.
+then sync. If the channel was already synced while the competition was inactive,
+run `bin/rails youtube:reclassify` to re-run the classifier over stored uploads.
+Add classifier tests with real title strings.
 
 ## YouTube sync
 
@@ -87,7 +93,8 @@ then sync. Add classifier tests with real title strings.
 - `FetchYoutubeVideosJob` — loops `Channel.active`, per-channel error isolation.
   Recurring `every 20 minutes` in `config/recurring.yml` (production only).
 - Rake: `bin/rails youtube:sync`, `bin/rails "youtube:sync_channel[ID]"`,
-  `bin/rails youtube:enqueue_sync`.
+  `bin/rails youtube:enqueue_sync`, `bin/rails youtube:reclassify` (re-runs the
+  classifier over stored uploads, no API calls).
 - **Lookback is 300** (`ChannelSynchronizer::DEFAULT_LOOKBACK`). NBC/CBS post
   30–40 videos/day; 50 only reaches ~1.5 days and misses match highlights.
 - **Geography**: the Data API is not geo-restricted by caller IP, so the job runs
@@ -134,8 +141,8 @@ then sync. Add classifier tests with real title strings.
 ## Roadmap
 
 - **V1 (done)**: NBC Sports → Premier League highlights, end to end.
-- **V2 (in progress)**: Champions League via CBS Sports Golazo (done); NCAA
-  college football via NBC Sports (rule + activate `college-football`).
+- **V2 (done)**: Champions League via CBS Sports Golazo; NCAA college football
+  via NBC Sports, CFB ON FOX, and ESPN College Football.
 - **V3**: `Game` + `Highlight` models, schedule APIs (`Competition#api_url`), match
   highlights to scheduled games, "awaiting highlights" state.
 - **Later**: team models/following, watched state, user accounts, notifications,

@@ -8,6 +8,8 @@ everton_v_man_utd:
   duration_seconds: 512
   is_highlight: true
   region_restricted: true
+  region_restriction:
+    allowed: [US, GU, PR, VI]
   embeddable: true
   raw_payload: "{}"
 

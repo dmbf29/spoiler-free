@@ -16,7 +16,7 @@
 .app__tagline {
   color: var(--text-dim);
   font-size: 0.9rem;
-  margin: 4px 0 24px;
+  margin: 4px 0 14px;
 }
 
 /* --- Filter bar --- */
@@ -47,6 +47,17 @@
 
 .chip:hover {
   color: var(--text);
+}
+
+.chip__logo {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  object-fit: contain;
+  /* League crests are drawn for light backgrounds — give them one. */
+  background: #f4f4f5;
+  border-radius: 3px;
 }
 
 .chip--active {
@@ -121,14 +132,11 @@
   margin-bottom: 14px;
 }
 
-.card__meta span::before {
-  content: "•";
-  margin-right: 14px;
-  color: var(--border);
-}
-
-.card__meta span:first-child::before {
-  content: none;
+.card__meta .meta-icon {
+  margin-right: 6px;
+  opacity: 0.8;
+  width: 1em;
+  text-align: center;
 }
 
 .btn {
@@ -144,6 +152,25 @@
 
 .btn:hover {
   background: var(--accent-hover);
+}
+
+.card__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.card__region {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.card__region--limited {
+  color: var(--warn);
 }
 
 .card__player {
@@ -163,10 +190,61 @@
   border: 0;
 }
 
+.card__player-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.card__player-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.8);
+}
+
 .card__note {
   margin-top: 10px;
   font-size: 0.8rem;
   color: var(--text-dim);
+}
+
+/* --- Buy me a coffee --- */
+.bmc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #ffdd00;
+  color: #0f1115;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: opacity 0.15s;
+}
+
+.bmc-link:hover {
+  opacity: 0.85;
+}
+
+.bmc-link__logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
 }
 
 .state {

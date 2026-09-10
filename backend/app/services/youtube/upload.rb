@@ -35,8 +35,14 @@ module Youtube
       nil
     end
 
+    # The raw regionRestriction hash ({ "allowed" => [...] } / { "blocked" => [...] })
+    # or nil. Country codes are ISO 3166-1 alpha-2.
+    def region_restriction
+      raw.dig("contentDetails", "regionRestriction")
+    end
+
     def region_restricted?
-      raw.dig("contentDetails", "regionRestriction").present?
+      region_restriction.present?
     end
 
     def embeddable?

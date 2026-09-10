@@ -18,7 +18,9 @@ class VideoClassifier
     /watch along/i
   ].freeze
 
-  # The video must look like a highlights package at all.
+  # Cheap pre-filter: unless a competition rule positively claims the upload, the
+  # title has to at least say "highlights". Some channels (ESPN, FOX college
+  # football) drop the word, so a rule match is allowed to override this.
   INCLUDE_PATTERNS = [/highlights/i].freeze
 
   def initialize(competitions:)
@@ -29,7 +31,6 @@ class VideoClassifier
     title = upload.title
 
     return Classification::Result.rejected("excluded keyword") if EXCLUDE_PATTERNS.any? { |p| title.match?(p) }
-    return Classification::Result.rejected("no highlight keyword") if INCLUDE_PATTERNS.none? { |p| title.match?(p) }
 
     @competitions.each do |competition|
       rule = Classification::TitleRules.for(competition.slug)
@@ -38,6 +39,8 @@ class VideoClassifier
       safe_title = rule.safe_title_for(title)
       return Classification::Result.highlight(competition: competition, safe_title: safe_title) if safe_title.present?
     end
+
+    return Classification::Result.rejected("no highlight keyword") if INCLUDE_PATTERNS.none? { |p| title.match?(p) }
 
     Classification::Result.rejected("no competition rule matched")
   end
