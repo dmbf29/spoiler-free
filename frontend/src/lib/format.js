@@ -8,11 +8,14 @@ export function formatDuration(seconds) {
   return `${hours}h ${mins % 60}m`
 }
 
+// published_at comes from the API as a UTC ISO-8601 instant. Passing no timeZone
+// option lets the browser render it in the viewer's local timezone.
 export function formatDate(iso) {
   if (!iso) return null
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
+  return new Date(iso).toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   })
 }
