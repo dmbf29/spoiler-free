@@ -10,8 +10,12 @@ class ChannelSynchronizer
     end
   end
 
-  # How many of the channel's most recent uploads to look at per sync.
-  DEFAULT_LOOKBACK = 50
+  # How many of the channel's most recent uploads to look at per sync. High-volume
+  # channels like NBC Sports post ~30-40 videos/day (podcasts, shows, other
+  # sports), so match highlights get buried quickly — 50 only reaches ~1.5 days
+  # back. Cost is ~1 quota unit per 50 items for playlistItems + the same for
+  # videos.list, so 300 is ~12 units/sync (quota is 10k/day).
+  DEFAULT_LOOKBACK = 300
 
   def initialize(channel, client: Youtube::Client.new, lookback: DEFAULT_LOOKBACK)
     @channel = channel

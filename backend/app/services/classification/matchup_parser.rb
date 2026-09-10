@@ -23,7 +23,11 @@ module Classification
     end
 
     def clean(part)
-      part.to_s.strip.sub(/\A[-–—]\s*/, "").squeeze(" ")
+      part.to_s
+          .gsub(/\((?:en español|en espanol|full match|full)\)/i, "") # NBC language/format tags
+          .strip
+          .sub(/\A[-–—]\s*/, "")
+          .squeeze(" ")
     end
   end
 end
