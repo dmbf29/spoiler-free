@@ -30,4 +30,12 @@ class Api::V1::VideosControllerTest < ActionDispatch::IntegrationTest
     ids = JSON.parse(response.body).map { |v| v["youtube_video_id"] }
     refute_includes ids, "misc_reaction_video"
   end
+
+  test "includes the sport icon and a competition photo_url key" do
+    get "/api/v1/videos"
+    video = JSON.parse(response.body).first
+
+    assert_equal "fa-solid fa-futbol", video.dig("sport", "icon")
+    assert video["competition"].key?("photo_url") # nil without an attachment, present as a key
+  end
 end

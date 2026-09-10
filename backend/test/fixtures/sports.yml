@@ -1,7 +1,9 @@
 soccer:
   name: Soccer
   slug: soccer
+  font_awesome_class: "fa-solid fa-futbol"
 
 football:
   name: Football
   slug: football
+  font_awesome_class: "fa-solid fa-football"

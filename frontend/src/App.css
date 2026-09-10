@@ -34,6 +34,8 @@
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-dim);
@@ -72,9 +74,42 @@
   padding: 18px;
 }
 
+.card__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.card__logo {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* League crests are drawn for light backgrounds — give them one. */
+  background: #f4f4f5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.card__logo img {
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+  display: block;
+}
+
 .card__title {
   font-size: 1.1rem;
-  margin-bottom: 6px;
+}
+
+.sport-icon {
+  margin-right: 6px;
+  opacity: 0.8;
+  width: 1em;
+  text-align: center;
 }
 
 .card__meta {

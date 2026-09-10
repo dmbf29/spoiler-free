@@ -30,13 +30,21 @@ class VideoSerializer
     sport = @video.competition&.sport
     return if sport.nil?
 
-    { name: sport.name, slug: sport.slug }
+    { name: sport.name, slug: sport.slug, icon: sport.font_awesome_class }
   end
 
   def competition_json
     competition = @video.competition
     return if competition.nil?
 
-    { name: competition.name, slug: competition.slug }
+    { name: competition.name, slug: competition.slug, photo_url: competition_photo_url(competition) }
+  end
+
+  def competition_photo_url(competition)
+    return unless competition.photo.attached?
+
+    competition.photo.url
+  rescue StandardError
+    nil
   end
 end

@@ -2,8 +2,14 @@
 # Attributes are updated on re-run (e.g. flipping a competition's `active` flag).
 
 # --- Sports -------------------------------------------------------------------
-soccer = Sport.find_or_create_by!(slug: "soccer") { |s| s.name = "Soccer" }
-football = Sport.find_or_create_by!(slug: "football") { |s| s.name = "Football" }
+sports = [
+  { slug: "soccer", name: "Soccer", font_awesome_class: "fa-solid fa-futbol" },
+  { slug: "football", name: "Football", font_awesome_class: "fa-solid fa-football" }
+]
+sports.each { |attrs| Sport.find_or_initialize_by(slug: attrs[:slug]).update!(attrs.except(:slug)) }
+
+soccer = Sport.find_by!(slug: "soccer")
+football = Sport.find_by!(slug: "football")
 
 # --- Competitions -----------------------------------------------------------------
 # `active: true`  -> classified and shown in the UI

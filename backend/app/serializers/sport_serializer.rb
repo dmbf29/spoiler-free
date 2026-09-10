@@ -11,6 +11,7 @@ class SportSerializer
     {
       name: @sport.name,
       slug: @sport.slug,
+      icon: @sport.font_awesome_class,
       competitions: @sport.competitions.select(&:active?).map do |competition|
         { name: competition.name, slug: competition.slug }
       end

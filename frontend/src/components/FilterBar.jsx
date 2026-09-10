@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
+import SportLabel from './SportLabel.jsx'
 
 // `sports` is the payload from GET /api/v1/sports:
-// [{ name, slug, competitions: [{ name, slug }] }]
+// [{ name, slug, icon, competitions: [{ name, slug }] }]
 export default function FilterBar({ sports, sportSlug }) {
   const activeSport = sports.find((s) => s.slug === sportSlug)
 
@@ -13,7 +14,7 @@ export default function FilterBar({ sports, sportSlug }) {
         </NavLink>
         {sports.map((sport) => (
           <NavLink key={sport.slug} to={`/${sport.slug}`} className={chipClass}>
-            {sport.name}
+            <SportLabel sport={sport} />
           </NavLink>
         ))}
       </div>
