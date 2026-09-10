@@ -13,7 +13,7 @@ export default defineConfig({
     // this origin (no CORS needed in dev, and no YouTube API access from React).
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3002',
         changeOrigin: true,
       },
     },

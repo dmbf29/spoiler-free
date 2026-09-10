@@ -28,7 +28,7 @@ YouTube Data API v3
 
 Prerequisites: Ruby 3.3, PostgreSQL running, Node 22 (`nvm use` in `frontend/`).
 
-### Backend (port 3000)
+### Backend (port 3002)
 
 ```bash
 cd backend
@@ -54,7 +54,7 @@ npm install
 npm run dev
 ```
 
-Vite proxies `/api` → `http://localhost:3000`, so the browser only ever talks to
+Vite proxies `/api` → `http://localhost:3002`, so the browser only ever talks to
 the frontend origin.
 
 ## Syncing videos
