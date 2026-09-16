@@ -30,10 +30,43 @@ import { useEffect, useRef, useState } from 'react'
 // whole viewport instead. It can't hide Safari's own address bar (nothing
 // short of the real API can), but the video (and the cover) still expand to
 // fill the screen.
+//
+// The cover itself doesn't have to stay up the whole time: YouTube's title
+// overlay fades on its own a few seconds into playback, and only comes back
+// if the viewer interacts with the player again. So the cover follows the
+// same lifecycle — hide it once that's almost certainly happened, bring it
+// back (resetting the same countdown) on real interaction. Desktop hover is
+// easy: mouseenter/mousemove on our own wrapper fire normally regardless of
+// the iframe underneath. A mobile tap on the iframe itself can't be observed
+// from here at all — same cross-origin restriction as everything else in
+// this file — so `.card__player-tapveil` sits on top ONLY while the cover is
+// hidden, catching just the first tap to bring it back; once shown, the veil
+// unmounts and the next tap reaches YouTube's own controls normally. That's
+// the same "tap once to reveal, tap again to act" convention YouTube's own
+// mobile player already uses, so it shouldn't feel like new behavior.
+const TITLE_GUARD_TIMEOUT_MS = 7000
+
 export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
   const containerRef = useRef(null)
+  const hideGuardTimeoutRef = useRef(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFakeFullscreen, setIsFakeFullscreen] = useState(false)
+  const [showTitleGuard, setShowTitleGuard] = useState(true)
+
+  function scheduleTitleGuardHide() {
+    clearTimeout(hideGuardTimeoutRef.current)
+    hideGuardTimeoutRef.current = setTimeout(() => setShowTitleGuard(false), TITLE_GUARD_TIMEOUT_MS)
+  }
+
+  function revealTitleGuard() {
+    setShowTitleGuard(true)
+    scheduleTitleGuardHide()
+  }
+
+  useEffect(() => {
+    scheduleTitleGuardHide()
+    return () => clearTimeout(hideGuardTimeoutRef.current)
+  }, [])
 
   useEffect(() => {
     function handleFullscreenChange() {
@@ -91,6 +124,8 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
     <div
       className={`card__player${isFakeFullscreen ? ' card__player--fake-fullscreen' : ''}`}
       ref={containerRef}
+      onMouseEnter={revealTitleGuard}
+      onMouseMove={revealTitleGuard}
     >
       <iframe
         src={src}
@@ -98,11 +133,22 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       />
 
-      {/* Permanently covers the title/channel row YouTube draws at the top of
-          its own player — see the comment above. `pointer-events: none` so it
-          never blocks the real controls (play/pause/seek/volume, keyboard
-          shortcuts) underneath. */}
-      <div className="card__player-titleguard" aria-hidden="true" />
+      {/* Covers the title/channel row YouTube draws at the top of its own
+          player — see the comment above for why it's only up part of the
+          time. `pointer-events: none` so it never blocks the real controls
+          (play/pause/seek/volume, keyboard shortcuts) underneath. */}
+      <div
+        className={`card__player-titleguard${showTitleGuard ? '' : ' card__player-titleguard--hidden'}`}
+        aria-hidden="true"
+      />
+
+      {!showTitleGuard && (
+        <div
+          className="card__player-tapveil"
+          aria-hidden="true"
+          onTouchStart={revealTitleGuard}
+        />
+      )}
 
       <button
         type="button"

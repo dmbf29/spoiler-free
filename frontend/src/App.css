@@ -258,11 +258,10 @@
   border: 0;
 }
 
-/* Permanently covers YouTube's own title/channel row — see the comment in
-   VideoPlayer.jsx for why this has to be a fixed, always-on cover rather than
-   anything reactive to state or input. Sized generously (with a min-height
-   for small cards) since the row's exact pixel height isn't something we
-   control either. */
+/* Covers YouTube's own title/channel row — see the comment in
+   VideoPlayer.jsx for why this only has to be up part of the time. Sized
+   generously (with a min-height for small cards) since the row's exact pixel
+   height isn't something we control either. */
 .card__player-titleguard {
   position: absolute;
   top: 0;
@@ -274,6 +273,23 @@
   background: #000;
   pointer-events: none;
   width: 85%;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.card__player-titleguard--hidden {
+  opacity: 0;
+}
+
+/* Mobile has no hover state to detect real interaction with the iframe (and
+   a touch landing directly on it can't be observed from here anyway — see
+   the comment in VideoPlayer.jsx), so this only exists, catching the first
+   tap, while the guard above is hidden. */
+.card__player-tapveil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 .card__player-fullscreen {
