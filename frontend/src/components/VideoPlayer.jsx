@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { loadYoutubeIframeApi } from '../lib/youtubeIframeApi.js'
 
 // Renders the YouTube IFrame embed. Only mounted after the user opts in, so no
 // YouTube network requests (or thumbnails) happen before playback. Unmounting
@@ -31,41 +32,84 @@ import { useEffect, useRef, useState } from 'react'
 // short of the real API can), but the video (and the cover) still expand to
 // fill the screen.
 //
-// The cover itself doesn't have to stay up the whole time: YouTube's title
-// overlay fades on its own a few seconds into playback, and only comes back
-// if the viewer interacts with the player again. So the cover follows the
-// same lifecycle — hide it once that's almost certainly happened, bring it
-// back (resetting the same countdown) on real interaction. Desktop hover is
-// easy: mouseenter/mousemove on our own wrapper fire normally regardless of
-// the iframe underneath. A mobile tap on the iframe itself can't be observed
-// from here at all — same cross-origin restriction as everything else in
-// this file — so `.card__player-tapveil` sits on top ONLY while the cover is
-// hidden, catching just the first tap to bring it back; once shown, the veil
+// The cover doesn't have to stay up the whole time: YouTube's title overlay
+// fades on its own a few seconds into playback, and only comes back if the
+// viewer interacts with the player again. So the cover follows the same
+// lifecycle — but the hide countdown only starts once we know playback has
+// actually begun, via a passive attachment to the IFrame Player API (no
+// playerVars, no custom controls — just listening for state changes on our
+// own existing iframe, which the API supports without replacing it). Tying
+// it to real state rather than a blind timer from mount matters because
+// "mounted" and "actually playing" can drift apart — slow buffering, or
+// autoplay getting blocked outright (which happens on mobile browsers more
+// than desktop) both used to leave the cover disappearing on schedule while
+// the title was still sitting there, unstarted, underneath it. If the state
+// API never loads at all (blocked script, offline), the cover simply never
+// gets a reason to hide — safe by default, matching the whole point of it.
+//
+// Desktop hover to bring the cover back is easy: mouseenter/mousemove on our
+// own wrapper fire normally regardless of the iframe underneath. A mobile
+// tap on the iframe itself can't be observed from here at all — same
+// cross-origin restriction as the state listener works around above — so
+// `.card__player-tapveil` sits on top ONLY while the cover is hidden,
+// catching just the first tap to bring it back; once shown, the veil
 // unmounts and the next tap reaches YouTube's own controls normally. That's
 // the same "tap once to reveal, tap again to act" convention YouTube's own
 // mobile player already uses, so it shouldn't feel like new behavior.
 const TITLE_GUARD_TIMEOUT_MS = 7000
+const YT_STATE_PLAYING = 1
 
 export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
   const containerRef = useRef(null)
+  const iframeRef = useRef(null)
   const hideGuardTimeoutRef = useRef(null)
+  const playerStateRef = useRef(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFakeFullscreen, setIsFakeFullscreen] = useState(false)
   const [showTitleGuard, setShowTitleGuard] = useState(true)
 
-  function scheduleTitleGuardHide() {
+  function armTitleGuardHide() {
     clearTimeout(hideGuardTimeoutRef.current)
-    hideGuardTimeoutRef.current = setTimeout(() => setShowTitleGuard(false), TITLE_GUARD_TIMEOUT_MS)
+    if (playerStateRef.current === YT_STATE_PLAYING) {
+      hideGuardTimeoutRef.current = setTimeout(() => setShowTitleGuard(false), TITLE_GUARD_TIMEOUT_MS)
+    }
   }
 
   function revealTitleGuard() {
     setShowTitleGuard(true)
-    scheduleTitleGuardHide()
+    armTitleGuardHide()
   }
 
   useEffect(() => {
-    scheduleTitleGuardHide()
-    return () => clearTimeout(hideGuardTimeoutRef.current)
+    let cancelled = false
+    let player = null
+
+    loadYoutubeIframeApi().then((YT) => {
+      if (cancelled || !iframeRef.current) return
+
+      function handleStateUpdate(state) {
+        playerStateRef.current = state
+        if (state === YT_STATE_PLAYING) {
+          armTitleGuardHide()
+        } else {
+          clearTimeout(hideGuardTimeoutRef.current)
+          setShowTitleGuard(true)
+        }
+      }
+
+      player = new YT.Player(iframeRef.current, {
+        events: {
+          onReady: (event) => handleStateUpdate(event.target.getPlayerState()),
+          onStateChange: (event) => handleStateUpdate(event.data),
+        },
+      })
+    })
+
+    return () => {
+      cancelled = true
+      clearTimeout(hideGuardTimeoutRef.current)
+      player?.destroy?.()
+    }
   }, [])
 
   useEffect(() => {
@@ -117,7 +161,9 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
     }
   }
 
-  const src = `https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1&fs=0`
+  const src =
+    `https://www.youtube-nocookie.com/embed/${youtubeVideoId}` +
+    `?autoplay=1&rel=0&modestbranding=1&fs=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`
   const expanded = isFullscreen || isFakeFullscreen
 
   return (
@@ -128,6 +174,7 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
       onMouseMove={revealTitleGuard}
     >
       <iframe
+        ref={iframeRef}
         src={src}
         title={title || 'Highlight video'}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
