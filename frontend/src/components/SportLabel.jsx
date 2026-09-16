@@ -1,6 +1,6 @@
 // Sport name preceded by its Font Awesome icon (icon class comes from the API:
 // sport.icon, e.g. "fa-solid fa-futbol"). Falls back to just the name.
-export default function SportLabel({ sport }) {
+export default function SportLabel({ sport, name = true }) {
   if (!sport) return null
 
   return (
