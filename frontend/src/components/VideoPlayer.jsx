@@ -22,9 +22,18 @@ import { useEffect, useRef, useState } from 'react'
 // permission to invoke even if a button reappeared) and instead fullscreen
 // our OWN wrapping element — the one that has the iframe *and* the cover as
 // children — so the cover rides along into real, OS-level fullscreen too.
+//
+// Mobile Safari doesn't implement the Fullscreen API for arbitrary elements
+// at all (only a bare <video>, via a different, non-standard method) — no
+// parameter or polyfill changes that. Where the real API isn't there, we
+// fall back to a CSS-only "fake fullscreen" that fixes the player over the
+// whole viewport instead. It can't hide Safari's own address bar (nothing
+// short of the real API can), but the video (and the cover) still expand to
+// fill the screen.
 export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
   const containerRef = useRef(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isFakeFullscreen, setIsFakeFullscreen] = useState(false)
 
   useEffect(() => {
     function handleFullscreenChange() {
@@ -40,25 +49,49 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
     }
   }, [])
 
+  // Fake fullscreen has no browser-native Escape handling, so wire it up
+  // ourselves, and stop the page scrolling underneath while it's open.
+  useEffect(() => {
+    if (!isFakeFullscreen) return
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') setIsFakeFullscreen(false)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isFakeFullscreen])
+
   function toggleFullscreen() {
-    const fsElement = document.fullscreenElement || document.webkitFullscreenElement
-    if (fsElement) {
-      ;(document.exitFullscreen || document.webkitExitFullscreen)?.call(document)
+    const el = containerRef.current
+    const requestNativeFullscreen = el.requestFullscreen || el.webkitRequestFullscreen
+
+    if (!requestNativeFullscreen) {
+      setIsFakeFullscreen((current) => !current)
       return
     }
 
-    const el = containerRef.current
-    // Safari (desktop) still needs the prefixed method as of recent versions;
-    // this isn't supported at all in mobile Safari, which only allows
-    // fullscreening a bare <video> — a platform limitation we can't work
-    // around, so the button there just does nothing.
-    ;(el.requestFullscreen || el.webkitRequestFullscreen)?.call(el)
+    const fsElement = document.fullscreenElement || document.webkitFullscreenElement
+    if (fsElement) {
+      ;(document.exitFullscreen || document.webkitExitFullscreen)?.call(document)
+    } else {
+      requestNativeFullscreen.call(el)
+    }
   }
 
   const src = `https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1&fs=0`
+  const expanded = isFullscreen || isFakeFullscreen
 
   return (
-    <div className="card__player" ref={containerRef}>
+    <div
+      className={`card__player${isFakeFullscreen ? ' card__player--fake-fullscreen' : ''}`}
+      ref={containerRef}
+    >
       <iframe
         src={src}
         title={title || 'Highlight video'}
@@ -75,9 +108,9 @@ export default function VideoPlayer({ youtubeVideoId, title, onClose }) {
         type="button"
         className="card__player-fullscreen"
         onClick={toggleFullscreen}
-        aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+        aria-label={expanded ? 'Exit fullscreen' : 'Fullscreen'}
       >
-        <i className={`fa-solid ${isFullscreen ? 'fa-compress' : 'fa-expand'}`} aria-hidden="true" />
+        <i className={`fa-solid ${expanded ? 'fa-compress' : 'fa-expand'}`} aria-hidden="true" />
       </button>
 
       {onClose && (

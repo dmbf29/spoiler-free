@@ -236,6 +236,20 @@
   border-radius: 0;
 }
 
+/* Fallback for browsers with no Fullscreen API for arbitrary elements
+   (mobile Safari) — see the comment in VideoPlayer.jsx. `fixed` pulls it out
+   of the page instead of relying on the browser's own fullscreen chrome, so
+   this can't hide the address bar the way real fullscreen does. */
+.card__player--fake-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
 .card__player iframe {
   position: absolute;
   inset: 0;
