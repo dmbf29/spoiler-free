@@ -147,6 +147,13 @@ Add classifier tests with real title strings.
   (default `/api/v1`, via the Vite proxy).
 - Dependencies are deliberately minimal: React, React Router, Vite. No Redux, no
   UI kit, no Hotwire/Turbo/Stimulus.
+- **PWA**: hand-rolled, no `vite-plugin-pwa` (keeps the no-extra-deps rule above).
+  `public/manifest.webmanifest` + icons, linked from `index.html`.
+  `public/sw.js` is registered from `main.jsx` in production builds only (a
+  service worker in dev would cache against Vite's HMR). The worker never
+  caches `/api/*` — that data changes continuously — and is network-first for
+  navigations so React Router paths always get a fresh `index.html`; it's
+  cache-first only for same-origin static assets (Vite's hashed build output).
 
 ## Roadmap
 
