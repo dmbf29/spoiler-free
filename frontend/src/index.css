@@ -41,3 +41,9 @@ h2,
 h3 {
   margin: 0;
 }
+
+/* Netlify injects this badge iframe into the served HTML at request time
+   (via /.netlify/scripts/hud) — not present in our build output. */
+#nl-badge-frame {
+  display: none !important;
+}
