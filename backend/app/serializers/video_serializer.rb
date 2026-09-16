@@ -15,6 +15,7 @@ class VideoSerializer
       safe_title: @video.safe_title,
       sport: sport_json,
       competition: competition_json,
+      channel: channel_json,
       published_at: @video.published_at&.iso8601,
       duration_seconds: @video.duration_seconds,
       duration_iso8601: @video.duration_iso8601,
@@ -53,6 +54,13 @@ class VideoSerializer
     return if competition.nil?
 
     { name: competition.name, slug: competition.slug, photo_url: competition_photo_url(competition) }
+  end
+
+  def channel_json
+    channel = @video.channel
+    return if channel.nil?
+
+    { name: channel.name }
   end
 
   def competition_photo_url(competition)

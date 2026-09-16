@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { formatDate, formatDuration } from '../lib/format.js'
 import { describeRegions } from '../lib/regions.js'
-import SportLabel from './SportLabel.jsx'
 import VideoPlayer from './VideoPlayer.jsx'
+import SportLabel from './SportLabel.jsx'
 
 export default function VideoCard({ video }) {
   const [playing, setPlaying] = useState(false)
@@ -24,10 +24,16 @@ export default function VideoCard({ video }) {
       </div>
 
       <div className="card__meta">
-        {video.sport && (
+        {video.competition?.name && (
           <span>
-            <SportLabel sport={video.sport} />
-            {video.competition?.name && ` – ${video.competition.name}`}
+            <SportLabel sport={video.sport} name={false} />
+            {video.competition.name}
+          </span>
+        )}
+        {video.channel?.name && (
+          <span>
+            <i className="meta-icon fa-brands fa-youtube"></i>
+            {video.channel.name}
           </span>
         )}
         <div className="timing">

@@ -6,7 +6,7 @@ export default function SportLabel({ sport }) {
   return (
     <>
       {sport.icon && <i className={`sport-icon ${sport.icon}`} aria-hidden="true" />}
-      {sport.name}
+      {name && sport.name }
     </>
   )
 }
