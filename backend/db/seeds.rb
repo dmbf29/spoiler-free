@@ -96,6 +96,13 @@ channels = [
     youtube_url: "https://www.youtube.com/@espncfb",
     uploads_playlist_id: "UUzRWWsFjqHk1an4OnVPsl9g",
     active: true
+  },
+  {
+    youtube_channel_id: "UCLzocFrP98gfI5W2LD7Ux-w",
+    name: "CBS Sports CFB",
+    youtube_url: "https://www.youtube.com/@CBSSportsCFB",
+    uploads_playlist_id: "UULzocFrP98gfI5W2LD7Ux-w",
+    active: true
   }
 ]
 

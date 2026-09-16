@@ -16,9 +16,9 @@ async function request(path, params) {
 }
 
 export const api = {
-  // GET /api/v1/videos?sport=&competition=
-  listVideos: ({ sport, competition } = {}) =>
-    request('/videos', { sport, competition }),
+  // GET /api/v1/videos?sport=&competition=&since=&before=
+  listVideos: ({ sport, competition, since, before } = {}) =>
+    request('/videos', { sport, competition, since, before }),
 
   // GET /api/v1/sports
   listSports: () => request('/sports'),

@@ -26,6 +26,13 @@ espn_cfb:
   uploads_playlist_id: UUzRWWsFjqHk1an4OnVPsl9g
   active: true
 
+cbs_sports_cfb:
+  name: CBS Sports CFB
+  youtube_channel_id: UCLzocFrP98gfI5W2LD7Ux-w
+  youtube_url: https://www.youtube.com/@CBSSportsCFB
+  uploads_playlist_id: UULzocFrP98gfI5W2LD7Ux-w
+  active: true
+
 inactive_channel:
   name: Dormant Channel
   youtube_channel_id: UC000000000000000000000

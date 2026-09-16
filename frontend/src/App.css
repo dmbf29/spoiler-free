@@ -49,6 +49,45 @@
   color: var(--text);
 }
 
+.sources {
+  margin-bottom: 24px;
+}
+
+.sources__label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.sources__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.6rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.source-link:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.source-link .fa-youtube {
+  color: #ff000079;
+}
+
 .chip__logo {
   flex-shrink: 0;
   width: 16px;
@@ -315,6 +354,11 @@
 
 .state--error {
   color: #f0a5a5;
+}
+
+.load-more {
+  text-align: center;
+  margin: 28px 0;
 }
 
 /* --- Mobile --- */

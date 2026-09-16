@@ -60,7 +60,7 @@ class VideoSerializer
     channel = @video.channel
     return if channel.nil?
 
-    { name: channel.name }
+    { name: channel.name, youtube_url: channel.youtube_url }
   end
 
   def competition_photo_url(competition)

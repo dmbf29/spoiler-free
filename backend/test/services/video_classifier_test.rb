@@ -227,6 +227,20 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
     end
   end
 
+  test "classifies CBS Sports CFB titles, which never say 'college football'" do
+    assert_equal "Southern Utah Thunderbirds vs Colorado State Rams",
+                 safe_title("Southern Utah Thunderbirds vs Colorado State Rams | Week 2 Condensed Game Highlights")
+    assert_equal "Maryland Terrapins vs UConn Huskies",
+                 safe_title("Maryland Terrapins vs UConn Huskies | Week 2 Condensed Game Highlights")
+    assert_equal "Western Kentucky Hilltoppers vs Nevada Wolf Pack",
+                 safe_title("Western Kentucky Hilltoppers vs Nevada Wolf Pack Highlights | Week 1 Condensed Game")
+    assert_equal "Boise State Broncos vs Oregon Ducks",
+                 safe_title("Boise State Broncos vs No. 2 Oregon Ducks Highlights | Week 1 Condensed Game")
+    # No "Highlights" word at all here — only the rule match lets this through.
+    assert_equal "Bryant Bulldogs vs Army Black Knights",
+                 safe_title("Bryant Bulldogs vs Army Black Knights | Week 1 Condensed Game")
+  end
+
   test "ignores non-game 'season highlights' compilations for a single player" do
     assert_nil safe_title("Makai Lemon 2025 USC Trojans Junior Season Highlights 🏈 FOX College Football")
   end

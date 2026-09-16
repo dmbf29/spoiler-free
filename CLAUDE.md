@@ -109,8 +109,8 @@ Add classifier tests with real title strings.
 - `Sport`: name, slug, `font_awesome_class` (e.g. `"fa-solid fa-futbol"`)
 - `Competition`: name, slug, `active`, `video_naming_convention`, `api_url` (V3),
   `has_one_attached :photo` (league crest, Cloudinary)
-- `Channel`: name, `youtube_channel_id`, `uploads_playlist_id`, `active`,
-  `last_synced_at`
+- `Channel`: name, `youtube_channel_id`, `youtube_url` (public channel link,
+  shown in the UI), `uploads_playlist_id`, `active`, `last_synced_at`
 - `Video`: `youtube_video_id` (unique), `original_title` (private), `safe_title`,
   `published_at`, `duration_seconds`, `is_highlight`, `region_restricted`,
   `embeddable`, `raw_payload` (jsonb, private), `competition_id` (nullable)
@@ -118,19 +118,29 @@ Add classifier tests with real title strings.
 ## API
 
 - `GET /api/v1/videos` — displayable highlights, newest first. Filters:
-  `?sport=<slug>`, `?competition=<slug>`. Each item: `safe_title`,
+  `?sport=<slug>`, `?competition=<slug>`. Paginated by date, not offset (highlights
+  arrive continuously, so page numbers would shift): `?since=<ISO8601>` and/or
+  `?before=<ISO8601>`; with neither given, defaults to the last 7 days. To load
+  an older page, pass `since`/`before` as the next 7-day window back from the
+  oldest `published_at` already loaded. Each item: `safe_title`,
   `sport {name, slug, icon}`, `competition {name, slug, photo_url}`,
-  `published_at`, `duration_seconds`, `duration_iso8601`, `youtube_video_id`,
-  `region_restricted`, `embeddable`.
+  `channel {name, youtube_url}`, `published_at`, `duration_seconds`,
+  `duration_iso8601`, `youtube_video_id`, `region_restricted`, `embeddable`.
+  `channel.youtube_url` drives the frontend's "sourced from" link strip, so
+  the UI doesn't read like a rehosted stream — it's derived per-video rather
+  than from a separate channels endpoint, so it only ever lists channels
+  actually represented in the current feed.
 - `GET /api/v1/sports` — sports with ≥1 active competition, competitions nested.
 
 ## Frontend
 
 - Routes are bookmarkable: `/`, `/:sportSlug`, `/:sportSlug/:competitionSlug`
   (`HighlightsPage` reads `useParams`).
-- `FilterBar` (sport → then competition), `VideoCard` (neutral — league crest +
-  safe title, no thumbnails), `VideoPlayer` (YouTube `nocookie` embed, mounted
-  only on "Watch Highlights" click), `SportLabel` (FA icon + name).
+- `FilterBar` (sport → then competition), `SourceChannels` (links to the
+  YouTube channels behind the currently-shown videos, shown between the
+  filters and the feed), `VideoCard` (neutral — league crest + safe title, no thumbnails),
+  `VideoPlayer` (YouTube `nocookie` embed, mounted only on "Watch Highlights"
+  click), `SportLabel` (FA icon + name).
 - Font Awesome 6 via a `<link>` in `index.html` (no npm dep). Icon class comes
   from the API (`sport.icon`).
 - `src/api/client.js` — `fetch` wrapper, base `import.meta.env.VITE_API_BASE_URL`
@@ -142,7 +152,7 @@ Add classifier tests with real title strings.
 
 - **V1 (done)**: NBC Sports → Premier League highlights, end to end.
 - **V2 (done)**: Champions League via CBS Sports Golazo; NCAA college football
-  via NBC Sports, CFB ON FOX, and ESPN College Football.
+  via NBC Sports, CFB ON FOX, ESPN College Football, and CBS Sports CFB.
 - **V3**: `Game` + `Highlight` models, schedule APIs (`Competition#api_url`), match
   highlights to scheduled games, "awaiting highlights" state.
 - **Later**: team models/following, watched state, user accounts, notifications,

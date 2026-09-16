@@ -51,4 +51,48 @@ class Api::V1::VideosControllerTest < ActionDispatch::IntegrationTest
     assert_equal "fa-solid fa-futbol", video.dig("sport", "icon")
     assert video["competition"].key?("photo_url") # nil without an attachment, present as a key
   end
+
+  test "includes the channel's YouTube link, for the frontend's sourced-from strip" do
+    get "/api/v1/videos"
+    video = JSON.parse(response.body).find { |v| v["youtube_video_id"] == "pl_everton_manutd" }
+
+    assert_equal "NBC Sports", video.dig("channel", "name")
+    assert_equal "https://www.youtube.com/@NBCSports", video.dig("channel", "youtube_url")
+  end
+
+  test "defaults to the last 7 days when no date params are given" do
+    get "/api/v1/videos"
+    ids = JSON.parse(response.body).map { |v| v["youtube_video_id"] }
+
+    assert_includes ids, "pl_everton_manutd"
+    assert_includes ids, "pl_brentford_sunderland"
+  end
+
+  test "since excludes videos published before the given time" do
+    get "/api/v1/videos", params: { since: 12.hours.ago.iso8601 }
+    ids = JSON.parse(response.body).map { |v| v["youtube_video_id"] }
+
+    assert_includes ids, "pl_everton_manutd"
+    refute_includes ids, "pl_brentford_sunderland"
+  end
+
+  test "before excludes videos published at or after the given time, for loading older pages" do
+    get "/api/v1/videos", params: { before: 12.hours.ago.iso8601 }
+    ids = JSON.parse(response.body).map { |v| v["youtube_video_id"] }
+
+    refute_includes ids, "pl_everton_manutd"
+    assert_includes ids, "pl_brentford_sunderland"
+  end
+
+  test "since and before together select a bounded window" do
+    get "/api/v1/videos", params: { since: 36.hours.ago.iso8601, before: 12.hours.ago.iso8601 }
+    ids = JSON.parse(response.body).map { |v| v["youtube_video_id"] }
+
+    assert_equal ["pl_brentford_sunderland"], ids
+  end
+
+  test "ignores an unparseable date param instead of erroring" do
+    get "/api/v1/videos", params: { since: "not-a-date" }
+    assert_response :success
+  end
 end
