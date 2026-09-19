@@ -100,7 +100,7 @@ Add classifier tests with real title strings.
   `/api/v1/youtube/webhook` (`YoutubeWebhooksController`: GET echoes
   `hub.challenge`, POST verifies the `X-Hub-Signature` HMAC then enqueues
   `SyncYoutubeVideosJob(channel_id, video_ids)` → `ChannelSynchronizer#sync_videos`,
-  ~1 quota unit). Leases last 5 days; `RenewYoutubeSubscriptionsJob` (daily)
+  ~1 quota unit). Leases last 5 days; `RenewYoutubeSubscriptionsJob` (every 4 hours, so a hub outage self-heals)
   resubscribes channels expiring within 2 days (`Channel.needing_websub_renewal`,
   `channels.websub_expires_at`). First-time setup / manual: `bin/rails youtube:subscribe`.
 - **No duplicates**: push and poll share `ChannelSynchronizer`, which skips known
