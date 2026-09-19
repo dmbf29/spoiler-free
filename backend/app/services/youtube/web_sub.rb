@@ -13,6 +13,9 @@ module Youtube
     TOPIC_URL = "https://www.youtube.com/xml/feeds/videos.xml".freeze
     CALLBACK_PATH = "/api/v1/youtube/webhook".freeze
     LEASE_SECONDS = 5.days.to_i
+    # The hub verifies our callback before it answers, even for hub.verify=async,
+    # and routinely takes 10-20s to reply — well past our usual 15s API timeout.
+    HUB_TIMEOUT = 60
     SIGNATURE_ALGORITHMS = { "sha1" => "SHA1", "sha256" => "SHA256" }.freeze
 
     def self.topic_for(youtube_channel_id)
@@ -73,7 +76,7 @@ module Youtube
     def connection
       @connection ||= Faraday.new do |f|
         f.request :url_encoded
-        f.options.timeout = 15
+        f.options.timeout = HUB_TIMEOUT
         f.options.open_timeout = 5
         f.response :raise_error
       end
