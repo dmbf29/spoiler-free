@@ -12,7 +12,7 @@ module Api
       def index
         videos = Video.displayable
                       .recent
-                      .includes(competition: [:sport, { photo_attachment: :blob }])
+                      .includes(:channel, competition: [:sport, { photo_attachment: :blob }])
 
         videos = videos.where(competitions: { slug: params[:competition] }) if params[:competition].present?
         videos = videos.where(sports: { slug: params[:sport] }) if params[:sport].present?

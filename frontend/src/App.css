@@ -175,7 +175,7 @@
   margin-left: 14px;
 }
 
-.card__meta .meta-icon {
+.meta-icon {
   margin-right: 6px;
   opacity: 0.8;
   width: 1em;
@@ -202,6 +202,15 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 12px;
+}
+
+.card__actions + .card__actions {
+  margin-top: 10px;
+}
+
+.card__actions > span:not(.card__region) {
+  color: var(--text-dim);
+  font-size: 0.85rem;
 }
 
 .card__region {

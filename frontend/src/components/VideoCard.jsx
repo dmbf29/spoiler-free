@@ -4,13 +4,15 @@ import { describeRegions } from '../lib/regions.js'
 import VideoPlayer from './VideoPlayer.jsx'
 import SportLabel from './SportLabel.jsx'
 
+// One game. `video.sources` holds each channel's upload of it (usually one,
+// occasionally several) — the viewer picks which one to watch.
 export default function VideoCard({ video }) {
-  const [playing, setPlaying] = useState(false)
+  const [playingId, setPlayingId] = useState(null)
 
-  const duration = formatDuration(video.duration_seconds)
   const date = formatDate(video.published_at)
   const logo = video.competition?.photo_url
-  const region = describeRegions(video.region_restriction)
+  const multiple = video.sources.length > 1
+  const playing = video.sources.find((source) => source.id === playingId)
 
   return (
     <article className="card">
@@ -30,12 +32,7 @@ export default function VideoCard({ video }) {
             {video.competition.name}
           </span>
         )}
-        {video.channel?.name && (
-          <span>
-            <i className="meta-icon fa-brands fa-youtube"></i>
-            {video.channel.name}
-          </span>
-        )}
+        {!multiple && <SourceMeta source={video.sources[0]} />}
         <div className="timing">
           {date && (
             <span>
@@ -43,46 +40,82 @@ export default function VideoCard({ video }) {
               {date}
             </span>
           )}
-          {duration && (
-            <span>
-              <i className="meta-icon fa-solid fa-stopwatch" aria-hidden="true" />
-              {duration}
-            </span>
-          )}
+          {!multiple && <Duration source={video.sources[0]} />}
         </div>
       </div>
 
       {playing ? (
         <>
           <VideoPlayer
-            youtubeVideoId={video.youtube_video_id}
+            youtubeVideoId={playing.youtube_video_id}
             title={video.safe_title}
-            onClose={() => setPlaying(false)}
+            onClose={() => setPlayingId(null)}
           />
-          {video.region_restricted && (
+          {playing.region_restricted && (
             <p className="card__note">
               This video may only play from certain countries (US region required).
             </p>
           )}
         </>
       ) : (
-        <div className="card__actions">
-          <button
-            className="btn"
-            onClick={() => setPlaying(true)}
-            disabled={video.embeddable === false}
-          >
-            {video.embeddable === false ? 'Playback unavailable' : 'Watch Highlights'}
-          </button>
-          <span
-            className={`card__region${region.restricted ? ' card__region--limited' : ''}`}
-            title={region.title}
-          >
-            <i className={`fa-solid ${region.icon}`} aria-hidden="true" />
-            {region.label}
-          </span>
-        </div>
+        video.sources.map((source) => (
+          <SourceActions
+            key={source.id}
+            source={source}
+            multiple={multiple}
+            onPlay={() => setPlayingId(source.id)}
+          />
+        ))
       )}
     </article>
+  )
+}
+
+function SourceMeta({ source }) {
+  if (!source.channel?.name) return null
+
+  return (
+    <span>
+      <i className="meta-icon fa-brands fa-youtube" aria-hidden="true" />
+      {source.channel.name}
+    </span>
+  )
+}
+
+function Duration({ source }) {
+  const duration = formatDuration(source.duration_seconds)
+  if (!duration) return null
+
+  return (
+    <span>
+      <i className="meta-icon fa-solid fa-stopwatch" aria-hidden="true" />
+      {duration}
+    </span>
+  )
+}
+
+function SourceActions({ source, multiple, onPlay }) {
+  const region = describeRegions(source.region_restriction)
+  const unavailable = source.embeddable === false
+  const label = unavailable
+    ? 'Playback unavailable'
+    : multiple && source.channel?.name
+      ? `Watch via ${source.channel.name}`
+      : 'Watch Highlights'
+
+  return (
+    <div className="card__actions">
+      <button className="btn" onClick={onPlay} disabled={unavailable}>
+        {label}
+      </button>
+      {multiple && <Duration source={source} />}
+      <span
+        className={`card__region${region.restricted ? ' card__region--limited' : ''}`}
+        title={region.title}
+      >
+        <i className={`fa-solid ${region.icon}`} aria-hidden="true" />
+        {region.label}
+      </span>
+    </div>
   )
 }

@@ -30,8 +30,9 @@ export default function SourceChannels({ videos }) {
 function uniqueChannels(videos) {
   const byName = new Map()
   for (const video of videos) {
-    const channel = video.channel
-    if (channel?.name && !byName.has(channel.name)) byName.set(channel.name, channel)
+    for (const { channel } of video.sources) {
+      if (channel?.name && !byName.has(channel.name)) byName.set(channel.name, channel)
+    }
   }
   return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name))
 }
