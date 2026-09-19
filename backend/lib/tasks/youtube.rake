@@ -20,6 +20,18 @@ namespace :youtube do
     puts "Enqueued FetchYoutubeVideosJob"
   end
 
+  desc "(Re)subscribe every active channel to YouTube push notifications (WebSub). " \
+       "Needs PUBLIC_BASE_URL and YOUTUBE_WEBSUB_SECRET."
+  task subscribe: :environment do
+    web_sub = Youtube::WebSub.new
+    Channel.active.find_each do |channel|
+      web_sub.subscribe(channel)
+      puts "Subscribed #{channel.name} (until #{channel.websub_expires_at})"
+    rescue Youtube::WebSub::Error => e
+      warn e.message
+    end
+  end
+
   desc "Re-run the classifier over already-stored uploads (use after activating a " \
        "competition on a channel that was synced earlier). No API calls."
   task reclassify: :environment do

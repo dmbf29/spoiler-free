@@ -8,6 +8,9 @@ Rails.application.routes.draw do
       resources :videos, only: %i[index]
       # Sports (with their active competitions nested) for the filter UI.
       resources :sports, only: %i[index]
+      # YouTube WebSub push callback (hub verification + notifications).
+      get "youtube/webhook", to: "youtube_webhooks#verify"
+      post "youtube/webhook", to: "youtube_webhooks#receive"
     end
   end
 end

@@ -6,6 +6,12 @@ class Channel < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
+  # Channels whose WebSub (push) subscription is missing or expires within
+  # `within`, and so should be (re)subscribed.
+  scope :needing_websub_renewal, lambda { |within: 2.days|
+    where(websub_expires_at: nil).or(where(websub_expires_at: ..within.from_now))
+  }
+
   # YouTube derives a channel's uploads playlist id from its channel id by
   # swapping the "UC" prefix for "UU". We still prefer an explicitly stored
   # value (resolved via the API) when present.

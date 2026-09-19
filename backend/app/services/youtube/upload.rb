@@ -12,6 +12,10 @@ module Youtube
       raw["id"]
     end
 
+    def channel_id
+      raw.dig("snippet", "channelId")
+    end
+
     def title
       raw.dig("snippet", "title").to_s
     end

@@ -27,26 +27,40 @@ class ChannelSynchronizer
   def call
     playlist_id = resolve_uploads_playlist_id
     recent_ids = recent_upload_ids(playlist_id)
-    new_ids = recent_ids - @channel.videos.where(youtube_video_id: recent_ids).pluck(:youtube_video_id)
+
+    summary = import(recent_ids)
+    @channel.update!(last_synced_at: Time.current)
+    summary
+  end
+
+  # Import specific videos (e.g. ones YouTube pushed to us via WebSub) without
+  # walking the uploads playlist. Same skip-known/classify/persist pipeline as
+  # #call, so a video seen by both the push and the poll is only stored once.
+  def sync_videos(video_ids)
+    import(Array(video_ids).uniq)
+  end
+
+  private
+
+  def import(ids)
+    new_ids = ids - Video.where(youtube_video_id: ids).pluck(:youtube_video_id)
 
     highlights = 0
     @client.videos(new_ids).each do |resource|
       upload = Youtube::Upload.new(resource)
-      highlights += 1 if persist(upload).is_highlight?
-    end
+      next if upload.channel_id.present? && upload.channel_id != @channel.youtube_channel_id
 
-    @channel.update!(last_synced_at: Time.current)
+      highlights += 1 if persist(upload)&.is_highlight?
+    end
 
     Summary.new(
       channel: @channel,
-      fetched: recent_ids.size,
+      fetched: ids.size,
       new_videos: new_ids.size,
       highlights: highlights,
-      skipped: recent_ids.size - new_ids.size
+      skipped: ids.size - new_ids.size
     )
   end
-
-  private
 
   def resolve_uploads_playlist_id
     return @channel.uploads_playlist_id if @channel.uploads_playlist_id.present?
@@ -90,5 +104,12 @@ class ChannelSynchronizer
     )
     video.save!
     video
+  rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
+    # A concurrent sync (the poll and a WebSub push can overlap) saved this
+    # video between our "is it known?" check and the insert. The unique index on
+    # youtube_video_id guarantees one row; treat the loser as a no-op.
+    raise unless Video.exists?(youtube_video_id: upload.youtube_video_id)
+
+    nil
   end
 end

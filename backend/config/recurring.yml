@@ -15,10 +15,13 @@ production:
     schedule: every hour at minute 12
   fetch_youtube_videos:
     class: FetchYoutubeVideosJob
-    schedule: every 20 minutes
+    schedule: every 30 minutes
+  renew_youtube_subscriptions:
+    class: RenewYoutubeSubscriptionsJob
+    schedule: every day at 4am
 
 # To exercise the recurring job locally, uncomment below and run `bin/jobs`:
 # development:
 #   fetch_youtube_videos:
 #     class: FetchYoutubeVideosJob
-#     schedule: every 20 minutes
+#     schedule: every 30 minutes

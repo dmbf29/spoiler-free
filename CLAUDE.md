@@ -40,6 +40,8 @@ The shell's default Node is v14 (unusable). `nvm use` reads `frontend/.nvmrc` (2
 - `CLOUDINARY_URL` — Active Storage uses the Cloudinary service in **development
   and production** (see `config/storage.yml`); tests use local Disk
 - `FRONTEND_ORIGIN` — CORS allow-origin (default `http://localhost:5180`)
+- `PUBLIC_BASE_URL` / `YOUTUBE_WEBSUB_SECRET` — production only; the app's public
+  https origin and the HMAC key for YouTube push notifications (see WebSub below)
 
 ## Conventions & gotchas
 
@@ -91,7 +93,21 @@ Add classifier tests with real title strings.
   too (`is_highlight: false`, `competition: nil`) so they aren't re-classified.
 - `Youtube::Client` — fetch only (playlistItems, videos, channels-by-handle).
 - `FetchYoutubeVideosJob` — loops `Channel.active`, per-channel error isolation.
-  Recurring `every 20 minutes` in `config/recurring.yml` (production only).
+  Recurring `every 30 minutes` in `config/recurring.yml` (production only). This
+  is the **backstop** to WebSub push (below), catching missed notifications.
+- **WebSub push** (near-real-time, no API quota): `Youtube::WebSub` subscribes each
+  channel's Atom feed at Google's hub; the hub POSTs to
+  `/api/v1/youtube/webhook` (`YoutubeWebhooksController`: GET echoes
+  `hub.challenge`, POST verifies the `X-Hub-Signature` HMAC then enqueues
+  `SyncYoutubeVideosJob(channel_id, video_ids)` → `ChannelSynchronizer#sync_videos`,
+  ~1 quota unit). Leases last 5 days; `RenewYoutubeSubscriptionsJob` (daily)
+  resubscribes channels expiring within 2 days (`Channel.needing_websub_renewal`,
+  `channels.websub_expires_at`). First-time setup / manual: `bin/rails youtube:subscribe`.
+- **No duplicates**: push and poll share `ChannelSynchronizer`, which skips known
+  ids, and `videos.youtube_video_id` is unique-indexed; a sync that loses a race
+  to the other path rescues the conflict and no-ops. Bad-signature POSTs get a 2xx
+  (per spec) but are ignored. Pushes also fire on title *edits*; known ids are
+  skipped, so edited videos are not re-classified.
 - Rake: `bin/rails youtube:sync`, `bin/rails "youtube:sync_channel[ID]"`,
   `bin/rails youtube:enqueue_sync`, `bin/rails youtube:reclassify` (re-runs the
   classifier over stored uploads, no API calls).
