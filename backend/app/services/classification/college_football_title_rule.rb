@@ -3,6 +3,7 @@ module Classification
   # channels carry them, with four different title shapes:
   #
   #   NBC Sports  "Wisconsin vs. Notre Dame | COLLEGE FOOTBALL HIGHLIGHTS | 9/6/25 | NBC Sports"
+  #   NBC (Big Ten) "No. 19 USC Trojans vs. Penn State Nittany Lions | BIG TEN HIGHLIGHTS | 10/10/26 | NBC Sports"
   #   CFB ON FOX  "Central Michigan vs New Mexico Highlights 🏈 FOX College Football"
   #   ESPN        "Louisville Cardinals vs. Ole Miss Rebels | Full Game Highlights | ESPN College Football"
   #   ESPN (hype) "Mason Heintschel 7 TDs 🔥 Miami (OH) RedHawks vs. Pittsburgh Panthers | ESPN College Football"
@@ -15,7 +16,12 @@ module Classification
   # is a dedicated college-football channel — re-check this if a non-CFB channel
   # ever starts using the same phrase.
   class CollegeFootballTitleRule
-    REQUIRED = [/college football|condensed game/i].freeze
+    #
+    # NBC also labels Big Ten games "BIG TEN HIGHLIGHTS" instead of "COLLEGE
+    # FOOTBALL HIGHLIGHTS". NBC's Big Ten basketball uploads would match too, but
+    # the "Highlights" label is the only signal in the title; revisit if
+    # basketball is ever added.
+    REQUIRED = [/college football|condensed game|big ten highlights/i].freeze
 
     # ESPN posts "... HALFTIME HIGHLIGHTS" packages too; they aren't a full-game
     # recap and "HALFTIME" ends up glued to a team name, so drop them outright.

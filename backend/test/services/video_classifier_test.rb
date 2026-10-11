@@ -193,6 +193,11 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
                  safe_title("Washington State Cougars vs. Washington Huskies | COLLEGE FOOTBALL HIGHLIGHTS | 9/6/26 | NBC Sports")
   end
 
+  test "classifies NBC Sports Big Ten-labelled college football titles" do
+    assert_equal "USC Trojans vs Penn State Nittany Lions",
+                 safe_title("No. 19 USC Trojans vs. Penn State Nittany Lions | BIG TEN HIGHLIGHTS | 10/10/26 | NBC Sports")
+  end
+
   test "classifies CFB ON FOX titles, dropping the channel suffix and AP ranking" do
     assert_equal "Central Michigan vs New Mexico",
                  safe_title("Central Michigan vs New Mexico Highlights 🏈 FOX College Football")
