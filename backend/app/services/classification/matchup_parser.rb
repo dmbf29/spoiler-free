@@ -1,7 +1,11 @@
 module Classification
   # Splits "Team A v. Team B" (and common variants) into two team names.
   module MatchupParser
-    SEPARATORS = [" v. ", " vs. ", " vs ", " v ", " V ", " @ ", " at "].freeze
+    SEPARATORS = [" v. ", " vs. ", " vs ", " v ", " V ", " @ "].freeze
+
+    # Only the Big Ten channel writes "Away at Home". It is too loose to try on
+    # every title ("QB play at Tennessee..."), so callers opt in with `allow_at:`.
+    AT_SEPARATOR = " at ".freeze
 
     # Emoji (Symbol, other) plus an optional variation selector, e.g. "🏈", "🔥".
     EMOJI = /\p{So}\u{FE0F}?/
@@ -11,7 +15,7 @@ module Classification
     # Returns [home, away] or nil. NBC lists soccer as "Home v. Away" and college
     # football as "Away vs. Home"; callers decide what the two slots mean and we
     # just preserve left/right order.
-    def split(text)
+    def split(text, allow_at: false)
       segment = text.to_s.split("|").first.to_s.strip
 
       # FOX ("CFB ON FOX") has no pipes: the matchup is followed by
@@ -31,7 +35,8 @@ module Classification
 
       return if segment.empty?
 
-      SEPARATORS.each do |sep|
+      separators = allow_at ? SEPARATORS + [AT_SEPARATOR] : SEPARATORS
+      separators.each do |sep|
         next unless segment.include?(sep)
 
         left, right = segment.split(sep, 2).map { |part| clean(part) }

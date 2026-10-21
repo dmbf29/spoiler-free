@@ -39,14 +39,18 @@ module Classification
     # ACC Digital Network posts two uploads of every game ("Game Highlights" and
     # "Condensed Game"); keep only the highlights so each game isn't listed twice
     # (the grouper deliberately never merges two uploads from one channel).
-    REJECT = [/half-?time/i, /condensed game.*\bacc football/i].freeze
+    #
+    # Big 12 also posts single-player spotlights, "Drew Mestemaker Highlights vs.
+    # #20 Houston". A game recap puts "Highlights" after the matchup, so the word
+    # sitting right before the separator marks a player clip.
+    REJECT = [/half-?time/i, /condensed game.*\bacc football/i, /\bhighlights\s+(?:vs?\.?|at)\s/i].freeze
 
     def safe_title_for(title)
       return unless REQUIRED.all? { |pattern| title.match?(pattern) }
       return if REJECT.any? { |pattern| title.match?(pattern) }
       return if title.match?(CONFERENCE_BRAND) && !title.match?(CONFERENCE_GAME)
 
-      teams = MatchupParser.split(title)
+      teams = MatchupParser.split(title, allow_at: title.match?(CONFERENCE_BRAND))
       return if teams.nil?
       return if teams.any? { |team| team.match?(/\d/) } # never let a score slip through
 

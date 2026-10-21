@@ -270,6 +270,15 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
                  safe_title("#2 Notre Dame vs. #8 BYU Extended Highlights | 2026 Monster Energy Big 12 Football")
   end
 
+  test "does not treat 'at' as a matchup separator outside conference-branded titles" do
+    assert_nil safe_title("QB play at Tennessee, Alabama, Texas & Ohio State was IMPRESSIVE 🌟  | Always College Football")
+  end
+
+  test "skips Big 12 single-player spotlight clips" do
+    assert_nil safe_title("Drew Mestemaker Highlights vs. #20 Houston | 2026 Monster Energy Big 12 Football")
+    assert_nil safe_title("Michael Hawkins Jr. Highlights vs. Cincinnati | 2026 Monster Energy Big 12 Football")
+  end
+
   test "ignores conference-branded uploads that aren't game highlights" do
     assert_nil safe_title("Coach Day at Media Days | Big Ten Football")
   end
