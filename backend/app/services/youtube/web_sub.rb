@@ -93,7 +93,12 @@ module Youtube
       lines = doc.xpath("//body//text()").map { |node| node.text.strip }.reject(&:blank?)
       from = lines.index { |l| l.start_with?("Subscription Details") }
       to = lines.index { |l| l.start_with?("These legal disclaimers") }
-      from ? lines[(from + 1)...(to || lines.size)] : []
+      return [] unless from
+
+      details = lines[(from + 1)...(to || lines.size)]
+      # The hub appends the last delivered Atom <entry>, which carries the
+      # original (spoiler-prone) video title. Never surface it.
+      details.take_while { |line| !line.start_with?("<entry") }
     end
 
     def callback_url

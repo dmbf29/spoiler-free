@@ -44,11 +44,12 @@ class Youtube::WebSubTest < ActiveSupport::TestCase
     assert_nil channel.reload.websub_expires_at
   end
 
-  test "hub_status returns the details text, including the hub's error for a bad secret" do
+  test "hub_status returns the details text, without the last delivered entry (it carries the original title)" do
     page = <<~HTML
       <html><body><style>.x{}</style><h1>PubSubHubbub Hub</h1>
       <h2>Subscription Details</h2><p>https://example/topic</p>
       <h3>State</h3><p>verified</p><h3>Expires</h3><p>2026-10-26</p>
+      <pre>&lt;entry&gt;&lt;title&gt;Team A 3-1 Team B&lt;/title&gt;&lt;/entry&gt;</pre>
       <p>These legal disclaimers are here because...</p><script>svg4everybody();</script></body></html>
     HTML
     fake = Object.new
