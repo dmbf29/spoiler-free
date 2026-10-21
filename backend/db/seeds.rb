@@ -103,6 +103,27 @@ channels = [
     youtube_url: "https://www.youtube.com/@CBSSportsCFB",
     uploads_playlist_id: "UULzocFrP98gfI5W2LD7Ux-w",
     active: true
+  },
+  {
+    youtube_channel_id: "UCXnslB_TwYqScBRf4bPf3vA",
+    name: "Big Ten Football",
+    youtube_url: "https://www.youtube.com/@B1GFootball",
+    uploads_playlist_id: "UUXnslB_TwYqScBRf4bPf3vA",
+    active: true
+  },
+  {
+    youtube_channel_id: "UC0hy7TcR1gGD8nQBqrF2FaA",
+    name: "ACC Digital Network",
+    youtube_url: "https://www.youtube.com/@ACCDigitalNetwork",
+    uploads_playlist_id: "UU0hy7TcR1gGD8nQBqrF2FaA",
+    active: true
+  },
+  {
+    youtube_channel_id: "UCLnfOCTbfqMy_3ah8OmTHEQ",
+    name: "Big 12 Conference",
+    youtube_url: "https://www.youtube.com/@Big12Conference",
+    uploads_playlist_id: "UULnfOCTbfqMy_3ah8OmTHEQ",
+    active: true
   }
 ]
 

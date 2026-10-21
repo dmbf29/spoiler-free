@@ -1,6 +1,6 @@
 module Classification
-  # Deterministic, title-based rule for college football highlights. Four
-  # channels carry them, with four different title shapes:
+  # Deterministic, title-based rule for college football highlights. Several
+  # channels carry them, with different title shapes:
   #
   #   NBC Sports  "Wisconsin vs. Notre Dame | COLLEGE FOOTBALL HIGHLIGHTS | 9/6/25 | NBC Sports"
   #   NBC (Big Ten) "No. 19 USC Trojans vs. Penn State Nittany Lions | BIG TEN HIGHLIGHTS | 10/10/26 | NBC Sports"
@@ -8,6 +8,9 @@ module Classification
   #   ESPN        "Louisville Cardinals vs. Ole Miss Rebels | Full Game Highlights | ESPN College Football"
   #   ESPN (hype) "Mason Heintschel 7 TDs 🔥 Miami (OH) RedHawks vs. Pittsburgh Panthers | ESPN College Football"
   #   CBS Sports  "Southern Utah Thunderbirds vs Colorado State Rams | Week 2 Condensed Game Highlights"
+  #   Big Ten     "Nebraska at Oregon | Extended Highlights | Big Ten Football | 10/17/2026"
+  #   ACC         "Louisville vs. Syracuse Game Highlights | 2026 ACC Football"
+  #   Big 12      "#11 Utah vs. Colorado Highlights | 2026 Monster Energy Big 12 Football"
   #
   # MatchupParser strips the per-channel prefixes/suffixes and AP-ranking tags;
   # here we gate on a college-football signal and refuse anything that still
@@ -21,15 +24,27 @@ module Classification
     # FOOTBALL HIGHLIGHTS". NBC's Big Ten basketball uploads would match too, but
     # the "Highlights" label is the only signal in the title; revisit if
     # basketball is ever added.
-    REQUIRED = [/college football|condensed game|big ten highlights/i].freeze
+    #
+    # The conference channels (Big Ten, ACC, Big 12) brand titles "<conference>
+    # Football". Their channels also post non-game clips, and the Big Ten's " at "
+    # separator is loose, so for these we additionally insist on "highlights" or
+    # "condensed game" in the title.
+    CONFERENCE_BRAND = /(?:big ten|acc|big 12) football/i
+    REQUIRED = [/college football|condensed game|big ten highlights|#{CONFERENCE_BRAND}/i].freeze
+    CONFERENCE_GAME = /highlights|condensed game/i
 
     # ESPN posts "... HALFTIME HIGHLIGHTS" packages too; they aren't a full-game
     # recap and "HALFTIME" ends up glued to a team name, so drop them outright.
-    REJECT = [/half-?time/i].freeze
+    #
+    # ACC Digital Network posts two uploads of every game ("Game Highlights" and
+    # "Condensed Game"); keep only the highlights so each game isn't listed twice
+    # (the grouper deliberately never merges two uploads from one channel).
+    REJECT = [/half-?time/i, /condensed game.*\bacc football/i].freeze
 
     def safe_title_for(title)
       return unless REQUIRED.all? { |pattern| title.match?(pattern) }
       return if REJECT.any? { |pattern| title.match?(pattern) }
+      return if title.match?(CONFERENCE_BRAND) && !title.match?(CONFERENCE_GAME)
 
       teams = MatchupParser.split(title)
       return if teams.nil?

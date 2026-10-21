@@ -1,7 +1,7 @@
 module Classification
   # Splits "Team A v. Team B" (and common variants) into two team names.
   module MatchupParser
-    SEPARATORS = [" v. ", " vs. ", " vs ", " v ", " V ", " @ "].freeze
+    SEPARATORS = [" v. ", " vs. ", " vs ", " v ", " V ", " @ ", " at "].freeze
 
     # Emoji (Symbol, other) plus an optional variation selector, e.g. "🏈", "🔥".
     EMOJI = /\p{So}\u{FE0F}?/
@@ -22,7 +22,8 @@ module Classification
 
       # CBS Golazo appends the format to the matchup itself, before the first
       # pipe: "Liverpool vs. Atlético Madrid: Extended Highlights".
-      segment = segment.sub(/:?\s*(?:extended |match |game )?highlights\s*\z/i, "").strip
+      # The ACC/Big 12 channels use "Condensed Game" the same way, with no pipe.
+      segment = segment.sub(/:?\s*(?:(?:extended |match |game )?highlights|condensed game)\s*\z/i, "").strip
 
       # ESPN can lead with a hype phrase before the matchup, always set off by an
       # emoji: "Mason Heintschel 7 TDs 🔥 Miami (OH) RedHawks vs. Pittsburgh...".

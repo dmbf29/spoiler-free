@@ -246,6 +246,34 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
                  safe_title("Bryant Bulldogs vs Army Black Knights | Week 1 Condensed Game")
   end
 
+  test "classifies Big Ten Football titles, which use 'at' between the teams" do
+    assert_equal "Nebraska vs Oregon",
+                 safe_title("Nebraska at Oregon | Extended Highlights | Big Ten Football | 10/17/2026")
+    assert_equal "Penn State vs Michigan",
+                 safe_title("Penn State at Michigan | Extended Highlights | Big Ten Football | 10/17/2026")
+  end
+
+  test "classifies ACC Digital Network game highlights but skips the duplicate condensed game" do
+    assert_equal "Louisville vs Syracuse",
+                 safe_title("Louisville vs. Syracuse Game Highlights | 2026 ACC Football")
+    assert_nil safe_title("Louisville vs. Syracuse Condensed Game | 2026 ACC Football")
+  end
+
+  test "classifies Big 12 Conference titles, stripping AP rankings and the format" do
+    assert_equal "Utah vs Colorado",
+                 safe_title("#11 Utah vs. Colorado Highlights | 2026 Monster Energy Big 12 Football")
+    assert_equal "Cincinnati vs West Virginia",
+                 safe_title("Cincinnati vs. West Virginia Condensed Game | 2026 Monster Energy Big 12 Football")
+    assert_equal "Arizona State vs Texas Tech",
+                 safe_title("Arizona State vs. #10 Texas Tech Extended Highlights | 2026 Monster Energy Big 12 Football")
+    assert_equal "Notre Dame vs BYU",
+                 safe_title("#2 Notre Dame vs. #8 BYU Extended Highlights | 2026 Monster Energy Big 12 Football")
+  end
+
+  test "ignores conference-branded uploads that aren't game highlights" do
+    assert_nil safe_title("Coach Day at Media Days | Big Ten Football")
+  end
+
   test "ignores non-game 'season highlights' compilations for a single player" do
     assert_nil safe_title("Makai Lemon 2025 USC Trojans Junior Season Highlights 🏈 FOX College Football")
   end
