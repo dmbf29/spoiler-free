@@ -76,7 +76,16 @@ Deterministic, title-based, no AI. Kept out of the job and the YouTube client.
 - `Classification::MatchupParser` — splits "Home v. Away" / "Home vs. Away" and
   strips channel cruft: NBC/CBS suffixes ("(En Español)", ": Extended Highlights"),
   the FOX "🏈 FOX College Football" tail, an ESPN hype phrase before the matchup
-  (set off by an emoji), and AP-ranking prefixes ("No. 12 ", "#3 ").
+  (set off by an emoji), a trailing "Condensed Game", and AP-ranking prefixes
+  ("No. 12 ", "#3 "). The " at " separator (Big Ten's "Away at Home") is opt-in
+  via `split(allow_at: true)`; it's too loose to try on every title.
+- **Conference channels** (`CollegeFootballTitleRule`): Big Ten Football, ACC
+  Digital Network and Big 12 Conference brand titles "<conference> Football" and
+  must also say "highlights"/"condensed game". They post several cuts per game,
+  and the grouper never merges two uploads from one channel, so we keep one:
+  **Extended Highlights** for Big Ten and Big 12, **Game Highlights** for ACC
+  (its "Condensed Game" is rejected). Big 12 single-player clips ("Player
+  Highlights vs. Team") are rejected: "Highlights" right before the separator.
 - `Classification::Result` — `highlight?`, `competition`, `safe_title`, `reason`.
 
 **To add a competition**: add a `*TitleRule` (implements `safe_title_for(title)`),
@@ -114,7 +123,8 @@ Add classifier tests with real title strings.
   skipped, so edited videos are not re-classified.
 - Rake: `bin/rails youtube:sync`, `bin/rails "youtube:sync_channel[ID]"`,
   `bin/rails youtube:enqueue_sync`, `bin/rails youtube:reclassify` (re-runs the
-  classifier over stored uploads, no API calls).
+  classifier over stored uploads, promoting new matches and demoting highlights
+  that no longer qualify; no API calls).
 - **Lookback is 300** (`ChannelSynchronizer::DEFAULT_LOOKBACK`). NBC/CBS post
   30–40 videos/day; 50 only reaches ~1.5 days and misses match highlights.
 - **Geography**: the Data API is not geo-restricted by caller IP, so the job runs
@@ -179,7 +189,8 @@ Add classifier tests with real title strings.
 
 - **V1 (done)**: NBC Sports → Premier League highlights, end to end.
 - **V2 (done)**: Champions League via CBS Sports Golazo; NCAA college football
-  via NBC Sports, CFB ON FOX, ESPN College Football, and CBS Sports CFB.
+  via NBC Sports, CFB ON FOX, ESPN College Football, and CBS Sports CFB, plus the
+  conference channels Big Ten Football, ACC Digital Network and Big 12 Conference.
 - **V3**: `Game` + `Highlight` models, schedule APIs (`Competition#api_url`), match
   highlights to scheduled games, "awaiting highlights" state.
 - **Later**: team models/following, watched state, user accounts, notifications,
