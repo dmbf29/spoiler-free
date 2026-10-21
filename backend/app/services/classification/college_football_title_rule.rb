@@ -33,6 +33,11 @@ module Classification
     REQUIRED = [/college football|condensed game|big ten highlights|#{CONFERENCE_BRAND}/i].freeze
     CONFERENCE_GAME = /highlights|condensed game/i
 
+    # Big Ten and Big 12 post several cuts of every game ("Highlights", "Extended
+    # Highlights", and for the Big 12 "Condensed Game"). Keep only the extended
+    # cut so each game isn't listed 2-3 times.
+    EXTENDED_ONLY_BRAND = /(?:big ten|big 12) football/i
+
     # ESPN posts "... HALFTIME HIGHLIGHTS" packages too; they aren't a full-game
     # recap and "HALFTIME" ends up glued to a team name, so drop them outright.
     #
@@ -49,6 +54,7 @@ module Classification
       return unless REQUIRED.all? { |pattern| title.match?(pattern) }
       return if REJECT.any? { |pattern| title.match?(pattern) }
       return if title.match?(CONFERENCE_BRAND) && !title.match?(CONFERENCE_GAME)
+      return if title.match?(EXTENDED_ONLY_BRAND) && !title.match?(/extended highlights/i)
 
       teams = MatchupParser.split(title, allow_at: title.match?(CONFERENCE_BRAND))
       return if teams.nil?
