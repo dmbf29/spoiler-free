@@ -5,11 +5,11 @@ module Api
     #   POST — a "video published/updated" notification, signed with our secret.
     class YoutubeWebhooksController < ApplicationController
       def verify
-        channel_id = Youtube::WebSub.channel_id_from_topic(params["hub.topic"])
+        channel = Channel.find_by(youtube_channel_id: Youtube::WebSub.channel_id_from_topic(params["hub.topic"]))
 
-        if params["hub.challenge"].present? &&
-           %w[subscribe unsubscribe].include?(params["hub.mode"]) &&
-           Channel.exists?(youtube_channel_id: channel_id)
+        if channel && params["hub.challenge"].present? &&
+           %w[subscribe unsubscribe].include?(params["hub.mode"])
+          record_lease(channel)
           render plain: params["hub.challenge"]
         else
           head :not_found
@@ -27,6 +27,19 @@ module Api
       end
 
       private
+
+      # The hub only calls this once it has accepted the subscription, so this is
+      # the moment we are truly subscribed (and for how long).
+      def record_lease(channel)
+        case params["hub.mode"]
+        when "subscribe"
+          lease = params["hub.lease_seconds"].to_i
+          lease = Youtube::WebSub::LEASE_SECONDS unless lease.positive?
+          channel.update!(websub_expires_at: lease.seconds.from_now)
+        when "unsubscribe"
+          channel.update!(websub_expires_at: nil)
+        end
+      end
 
       def enqueue_syncs(entries)
         entries.group_by(&:channel_id).each do |youtube_channel_id, channel_entries|

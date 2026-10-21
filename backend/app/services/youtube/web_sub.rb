@@ -10,6 +10,7 @@ module Youtube
     class NotConfigured < Error; end
 
     HUB_URL = "https://pubsubhubbub.appspot.com/subscribe".freeze
+    DETAILS_URL = "https://pubsubhubbub.appspot.com/subscription-details".freeze
     TOPIC_URL = "https://www.youtube.com/xml/feeds/videos.xml".freeze
     CALLBACK_PATH = "/api/v1/youtube/webhook".freeze
     LEASE_SECONDS = 5.days.to_i
@@ -49,7 +50,8 @@ module Youtube
     end
 
     # Asks the hub to (re)subscribe the channel. The hub verifies asynchronously
-    # by GETting our webhook; a 202 here only means the request was accepted.
+    # by GETting our webhook; a 202 here only means the request was accepted, so
+    # websub_expires_at is recorded by the webhook when verification arrives.
     def subscribe(channel)
       raise NotConfigured, "PUBLIC_BASE_URL and YOUTUBE_WEBSUB_SECRET must be set" unless self.class.configured?
 
@@ -62,12 +64,37 @@ module Youtube
         "hub.secret" => self.class.secret,
         "hub.lease_seconds" => LEASE_SECONDS
       )
-      channel.update!(websub_expires_at: LEASE_SECONDS.seconds.from_now)
     rescue Faraday::Error => e
       raise Error, "WebSub subscribe failed for #{channel.name} (#{e.try(:response_status) || e.class})"
     end
 
+    # What the hub itself says about this channel's subscription: the text of its
+    # /subscription-details page (state, expiry, last delivery...). Needs the
+    # secret we subscribed with. Returns an array of non-blank text lines.
+    def hub_status(channel)
+      response = connection.get(
+        DETAILS_URL,
+        "hub.callback" => callback_url,
+        "hub.topic" => self.class.topic_for(channel.youtube_channel_id),
+        "hub.secret" => self.class.secret
+      )
+      page_text(response.body)
+    rescue Faraday::ClientError => e
+      page_text(e.response&.dig(:body)).presence || raise(Error, "hub status failed (#{e.try(:response_status)})")
+    rescue Faraday::Error => e
+      raise Error, "hub status failed (#{e.class})"
+    end
+
     private
+
+    def page_text(html)
+      doc = Nokogiri::HTML(html.to_s)
+      doc.css("script, style").remove
+      lines = doc.xpath("//body//text()").map { |node| node.text.strip }.reject(&:blank?)
+      from = lines.index { |l| l.start_with?("Subscription Details") }
+      to = lines.index { |l| l.start_with?("These legal disclaimers") }
+      from ? lines[(from + 1)...(to || lines.size)] : []
+    end
 
     def callback_url
       ENV.fetch("PUBLIC_BASE_URL").chomp("/") + CALLBACK_PATH

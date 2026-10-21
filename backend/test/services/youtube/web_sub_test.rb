@@ -26,7 +26,7 @@ class Youtube::WebSubTest < ActiveSupport::TestCase
     refute Youtube::WebSub.valid_signature?("body", nil)
   end
 
-  test "subscribe posts to the hub and records the lease expiry" do
+  test "subscribe posts to the hub but does not claim a lease until the hub verifies" do
     channel = channels(:nbc_sports)
     captured = nil
     fake = Object.new
@@ -41,7 +41,23 @@ class Youtube::WebSubTest < ActiveSupport::TestCase
     assert_equal "subscribe", params["hub.mode"]
     assert_equal Youtube::WebSub.topic_for(channel.youtube_channel_id), params["hub.topic"]
     assert_equal "https://spoilerfree.example.com/api/v1/youtube/webhook", params["hub.callback"]
-    assert_in_delta 5.days.from_now, channel.reload.websub_expires_at, 1.minute
+    assert_nil channel.reload.websub_expires_at
+  end
+
+  test "hub_status returns the details text, including the hub's error for a bad secret" do
+    page = <<~HTML
+      <html><body><style>.x{}</style><h1>PubSubHubbub Hub</h1>
+      <h2>Subscription Details</h2><p>https://example/topic</p>
+      <h3>State</h3><p>verified</p><h3>Expires</h3><p>2026-10-26</p>
+      <p>These legal disclaimers are here because...</p><script>svg4everybody();</script></body></html>
+    HTML
+    fake = Object.new
+    fake.define_singleton_method(:get) { |_url, _params| Struct.new(:body).new(page) }
+    web_sub = Youtube::WebSub.new
+    web_sub.instance_variable_set(:@connection, fake)
+
+    assert_equal ["https://example/topic", "State", "verified", "Expires", "2026-10-26"],
+                 web_sub.hub_status(channels(:nbc_sports))
   end
 
   test "subscribe refuses to run unconfigured" do

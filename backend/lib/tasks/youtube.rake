@@ -26,9 +26,27 @@ namespace :youtube do
     web_sub = Youtube::WebSub.new
     Channel.active.find_each do |channel|
       web_sub.subscribe(channel)
-      puts "Subscribed #{channel.name} (until #{channel.websub_expires_at})"
+      puts "Requested subscription for #{channel.name} (hub accepted; run youtube:status to confirm)"
     rescue Youtube::WebSub::Error => e
       warn e.message
+    end
+  end
+
+  desc "Show push-notification (WebSub) status per channel: our recorded lease, " \
+       "plus what Google's hub reports. Run where YOUTUBE_WEBSUB_SECRET is set."
+  task status: :environment do
+    web_sub = Youtube::WebSub.new
+    Channel.active.order(:name).each do |channel|
+      lease = channel.websub_expires_at
+      ours = lease && lease > Time.current ? "subscribed until #{lease.utc}" : "NOT subscribed (no verified lease)"
+      puts "#{channel.name}: #{ours}"
+      next unless Youtube::WebSub.configured?
+
+      begin
+        web_sub.hub_status(channel).each { |line| puts "    hub: #{line}" }
+      rescue Youtube::WebSub::Error => e
+        puts "    hub: #{e.message}"
+      end
     end
   end
 

@@ -47,6 +47,28 @@ class Api::V1::YoutubeWebhooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "abc123", response.body
   end
 
+  test "hub verification records the lease the hub granted" do
+    get "/api/v1/youtube/webhook", params: {
+      "hub.mode" => "subscribe",
+      "hub.topic" => Youtube::WebSub.topic_for(@channel.youtube_channel_id),
+      "hub.challenge" => "abc123",
+      "hub.lease_seconds" => "432000"
+    }
+
+    assert_in_delta 5.days.from_now, @channel.reload.websub_expires_at, 1.minute
+  end
+
+  test "hub unsubscribe verification clears the lease" do
+    @channel.update!(websub_expires_at: 3.days.from_now)
+    get "/api/v1/youtube/webhook", params: {
+      "hub.mode" => "unsubscribe",
+      "hub.topic" => Youtube::WebSub.topic_for(@channel.youtube_channel_id),
+      "hub.challenge" => "abc123"
+    }
+
+    assert_nil @channel.reload.websub_expires_at
+  end
+
   test "rejects verification for an unknown channel" do
     get "/api/v1/youtube/webhook", params: {
       "hub.mode" => "subscribe",

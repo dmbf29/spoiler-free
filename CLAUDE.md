@@ -102,7 +102,11 @@ Add classifier tests with real title strings.
   `SyncYoutubeVideosJob(channel_id, video_ids)` → `ChannelSynchronizer#sync_videos`,
   ~1 quota unit). Leases last 5 days; `RenewYoutubeSubscriptionsJob` (every 4 hours, so a hub outage self-heals)
   resubscribes channels expiring within 2 days (`Channel.needing_websub_renewal`,
-  `channels.websub_expires_at`). First-time setup / manual: `bin/rails youtube:subscribe`.
+  `channels.websub_expires_at`, which the webhook sets only when the hub *verifies*
+  a subscription — a 202 from the hub just means "request accepted").
+  First-time setup / manual: `bin/rails youtube:subscribe`; check with
+  `bin/rails youtube:status` (our lease + the hub's own `/subscription-details`
+  page, which needs `YOUTUBE_WEBSUB_SECRET`, so run it on Heroku).
 - **No duplicates**: push and poll share `ChannelSynchronizer`, which skips known
   ids, and `videos.youtube_video_id` is unique-indexed; a sync that loses a race
   to the other path rescues the conflict and no-ops. Bad-signature POSTs get a 2xx
