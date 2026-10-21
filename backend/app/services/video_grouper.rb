@@ -59,8 +59,12 @@ class VideoGrouper
     tokens if tokens.none?(&:empty?)
   end
 
-  # Jaccard similarity of word sets.
+  # Overlap coefficient of word sets: shared words over the smaller set. Jaccard
+  # would score "Indiana" vs "Indiana Hoosiers" at 0.5, but Big Ten/ACC titles
+  # routinely drop the nickname the other channels include. Both sides of the
+  # matchup must align inside the same 36h window, which keeps "Texas" vs
+  # "Texas Tech" from merging in practice.
   def overlap(x, y)
-    (x & y).size.to_f / (x | y).size
+    (x & y).size.to_f / [x.size, y.size].min
   end
 end

@@ -18,6 +18,15 @@ class VideoGrouperTest < ActiveSupport::TestCase
     assert_equal [fox, espn], groups.first # newest leads
   end
 
+  test "groups when one channel drops the team nicknames" do
+    nbc = video("Ohio State Buckeyes vs Indiana Hoosiers", channel: :cfb_on_fox, hours_ago: 1, id: 1)
+    big_ten = video("Ohio State vs Indiana", channel: :espn_cfb, hours_ago: 2, id: 2)
+    unc = video("North Carolina Tar Heels vs Duke Blue Devils", channel: :cfb_on_fox, hours_ago: 3, id: 3)
+    acc = video("North Carolina vs Duke", channel: :espn_cfb, hours_ago: 4, id: 4)
+
+    assert_equal 2, VideoGrouper.call([nbc, big_ten, unc, acc]).size
+  end
+
   test "groups when a channel lists the teams in the opposite order" do
     a = video("Houston Cougars vs Texas Tech Raiders", channel: :cfb_on_fox, id: 1)
     b = video("Texas Tech Raiders vs Houston Cougars", channel: :espn_cfb, id: 2)
