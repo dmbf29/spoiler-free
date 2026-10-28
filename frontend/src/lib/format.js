@@ -19,3 +19,17 @@ export function formatDate(iso) {
     minute: '2-digit',
   })
 }
+
+// Kickoff times are UTC instants; both helpers render in the viewer's timezone.
+export function formatKickoffTime(iso) {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+}
+
+// Local calendar day, e.g. "Saturday, October 31" — also used as the grouping key.
+export function formatDay(iso) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  })
+}

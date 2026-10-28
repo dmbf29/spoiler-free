@@ -132,6 +132,31 @@ Add classifier tests with real title strings.
   region-locked — the API stores `region_restricted` / `embeddable` per video and
   the UI shows a neutral note instead of a broken player.
 
+## Schedule (college football, V3 in progress)
+
+- `Team` / `Game` come from ESPN's public scoreboard API (unofficial, no key;
+  base URL in `Competition#api_url`). `Espn::Client` fetches, `Espn::Event` is the
+  **only** reader of the payload and exposes just safe fields — scores, records
+  and stat leaders are never read or stored. `ScheduleSynchronizer` upserts a
+  week at a time (FBS group 80; FCS opponents appear as teams without a conference).
+- Game status is coarse (`scheduled/in_progress/final/postponed/canceled`).
+  `home_rank`/`away_rank` are a **pre-game snapshot**, set only while the game is
+  `scheduled` — post-game rankings can reveal the result.
+- `SyncCollegeFootballScheduleJob` (every 30 min, production) syncs the current
+  + next week. Rake: `schedule:sync`, `schedule:sync_season` (backfill all weeks),
+  `schedule:sync_week[season,week]`.
+- `GET /api/v1/games?week=<n>&season=<year>&competition=<slug>` — defaults to the
+  current week; returns `{season, week, weeks, games}`; each game has a
+  `highlights` array of playable sources (same shape as `/videos` sources).
+- **Video → game matching**: `GameMatcher` runs after each video is persisted
+  (`ChannelSynchronizer`) and sets `videos.game_id`. It compares the two sides of
+  `safe_title` with games of that competition that kicked off within 5 days
+  before the upload; a side matches a team by full name, or by short name /
+  location (name minus nickname) / abbreviation / `config/team_aliases.yml`
+  plus only nickname words — so "Texas" never matches Texas Tech. Order is
+  ignored. `bin/rails schedule:match_videos` backfills (`REMATCH=1` redoes all),
+  `schedule:unmatched` lists recent highlights with no game — add aliases there.
+
 ## Data model
 
 `Sport` → `Competition` → `Video` (a `Video` also `belongs_to :channel`).
@@ -165,7 +190,12 @@ Add classifier tests with real title strings.
 ## Frontend
 
 - Routes are bookmarkable: `/`, `/:sportSlug`, `/:sportSlug/:competitionSlug`
-  (`HighlightsPage` reads `useParams`).
+  (`HighlightsPage` reads `useParams`). **College football is the exception:**
+  `/football/college-football?week=N` is `SchedulePage` — `WeekPicker` (weeks from
+  the API; no `week` = current week), games grouped by the viewer's local day,
+  `GameRow` per game (logos, rank, kickoff, TV, then Watch Highlights via the
+  shared `SourceActions`/`VideoPlayer`, or "Awaiting highlights"). Never shows
+  a score or result. Kickoffs render in the browser's timezone.
 - `FilterBar` (sport → then competition), `SourceChannels` (links to the
   YouTube channels behind the currently-shown videos, shown between the
   filters and the feed), `VideoCard` (neutral — league crest + safe title, no thumbnails),
