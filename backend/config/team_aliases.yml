@@ -1,0 +1,4 @@
+# Extra names video titles use for a team, keyed by ESPN team id (name in a
+# comment). GameMatcher already matches the ESPN short name, abbreviation and
+# full name (with or without the nickname); add a name here only when a channel
+# writes something else. Find candidates with `bin/rails schedule:unmatched`.

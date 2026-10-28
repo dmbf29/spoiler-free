@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       # Spoiler-safe highlight feed. Supports ?sport=<slug> and ?competition=<slug>.
       resources :videos, only: %i[index]
+      # Weekly schedule. Supports ?competition=<slug>&season=<year>&week=<n>.
+      resources :games, only: %i[index]
       # Sports (with their active competitions nested) for the filter UI.
       resources :sports, only: %i[index]
       # YouTube WebSub push callback (hub verification + notifications).

@@ -1,6 +1,7 @@
 class Video < ApplicationRecord
   belongs_to :channel
   belongs_to :competition, optional: true
+  belongs_to :game, optional: true
   has_one :sport, through: :competition
 
   validates :youtube_video_id, presence: true, uniqueness: true

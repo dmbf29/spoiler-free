@@ -41,6 +41,7 @@ competitions = [
     name: "College Football",
     sport: football,
     active: true,
+    api_url: "https://site.api.espn.com/apis/site/v2/sports/football/college-football",
     video_naming_convention: "Away vs. Home | COLLEGE FOOTBALL HIGHLIGHTS | M/D/YY | NBC Sports " \
       "(also 'CFB ON FOX' and 'ESPN College Football', which vary the wording)"
   }

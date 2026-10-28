@@ -7,6 +7,11 @@ class VideoSerializer
     VideoGrouper.call(videos).map { |group| new(group).as_json }
   end
 
+  # One playable source for a single video (used by GameSerializer too).
+  def self.source(video)
+    new([video]).source_json(video)
+  end
+
   # group: videos of the same game, newest first. The lead supplies the
   # game-level fields (title, sport, competition, published_at).
   def initialize(group)
@@ -25,8 +30,6 @@ class VideoSerializer
     }
   end
 
-  private
-
   # One playable upload of the game. Region/embed flags are per-video since
   # channels can differ.
   def source_json(video)
@@ -42,6 +45,8 @@ class VideoSerializer
       embeddable: video.embeddable
     }
   end
+
+  private
 
   # Normalizes the raw YouTube shape into { mode:, regions: } (or nil). Region
   # codes aren't spoilers, so unlike original_title/raw_payload this is safe to

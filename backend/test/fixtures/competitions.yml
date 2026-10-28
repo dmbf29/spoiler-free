@@ -21,3 +21,4 @@ college_football:
   slug: college-football
   sport: football
   active: true
+  api_url: https://example.test/espn

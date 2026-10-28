@@ -92,4 +92,22 @@ class ChannelSynchronizerTest < ActiveSupport::TestCase
       ChannelSynchronizer.new(@channel, client: client).sync_videos(["other_chan"])
     end
   end
+
+  test "a newly synced college football highlight is attached to its scheduled game" do
+    kickoff = Time.utc(2026, 10, 31, 16)
+    wisc = Team.create!(espn_id: "w", name: "Wisconsin Badgers", nickname: "Badgers", short_name: "Wisconsin")
+    nd = Team.create!(espn_id: "n", name: "Notre Dame Fighting Irish", nickname: "Fighting Irish", short_name: "Notre Dame")
+    game = Game.create!(competition: competitions(:college_football), espn_id: "cfb1", season: 2026, week: 9,
+                        kickoff_at: kickoff, home_team: nd, away_team: wisc)
+    resource = {
+      "id" => "cfb_vid",
+      "snippet" => { "title" => "Wisconsin vs. Notre Dame | COLLEGE FOOTBALL HIGHLIGHTS | 10/31/26 | NBC Sports",
+                     "channelId" => @channel.youtube_channel_id, "publishedAt" => "2026-10-31T22:00:00Z" },
+      "contentDetails" => { "duration" => "PT8M30S" }
+    }
+
+    ChannelSynchronizer.new(@channel, client: FakeClient.new([resource])).sync_videos(["cfb_vid"])
+
+    assert_equal game, Video.find_by!(youtube_video_id: "cfb_vid").game
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_110001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
     t.string "video_naming_convention"
     t.index ["slug"], name: "index_competitions_on_slug", unique: true
     t.index ["sport_id"], name: "index_competitions_on_sport_id"
+  end
+
+  create_table "games", force: :cascade do |t|
+    t.integer "away_rank"
+    t.bigint "away_team_id", null: false
+    t.bigint "competition_id", null: false
+    t.datetime "created_at", null: false
+    t.string "espn_id", null: false
+    t.integer "home_rank"
+    t.bigint "home_team_id", null: false
+    t.datetime "kickoff_at", null: false
+    t.boolean "neutral_site", default: false, null: false
+    t.integer "season", null: false
+    t.integer "season_type", default: 2, null: false
+    t.string "status", default: "scheduled", null: false
+    t.string "tv"
+    t.datetime "updated_at", null: false
+    t.integer "week"
+    t.index ["away_team_id"], name: "index_games_on_away_team_id"
+    t.index ["competition_id", "season", "season_type", "week"], name: "idx_on_competition_id_season_season_type_week_c831108feb"
+    t.index ["competition_id"], name: "index_games_on_competition_id"
+    t.index ["espn_id"], name: "index_games_on_espn_id", unique: true
+    t.index ["home_team_id"], name: "index_games_on_home_team_id"
+    t.index ["kickoff_at"], name: "index_games_on_kickoff_at"
   end
 
   create_table "solid_cache_entries", force: :cascade do |t|
@@ -238,12 +262,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
     t.index ["slug"], name: "index_sports_on_slug", unique: true
   end
 
+  create_table "teams", force: :cascade do |t|
+    t.string "abbreviation"
+    t.string "color"
+    t.string "conference"
+    t.datetime "created_at", null: false
+    t.string "espn_id", null: false
+    t.string "logo_url"
+    t.string "name", null: false
+    t.string "nickname"
+    t.string "short_name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["espn_id"], name: "index_teams_on_espn_id", unique: true
+  end
+
   create_table "videos", force: :cascade do |t|
     t.bigint "channel_id", null: false
     t.bigint "competition_id"
     t.datetime "created_at", null: false
     t.integer "duration_seconds"
     t.boolean "embeddable", default: true, null: false
+    t.bigint "game_id"
     t.boolean "is_highlight", default: false, null: false
     t.string "original_title", null: false
     t.datetime "published_at", null: false
@@ -255,6 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
     t.string "youtube_video_id", null: false
     t.index ["channel_id"], name: "index_videos_on_channel_id"
     t.index ["competition_id"], name: "index_videos_on_competition_id"
+    t.index ["game_id"], name: "index_videos_on_game_id"
     t.index ["is_highlight", "published_at"], name: "index_videos_on_is_highlight_and_published_at"
     t.index ["youtube_video_id"], name: "index_videos_on_youtube_video_id", unique: true
   end
@@ -262,6 +302,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "competitions", "sports"
+  add_foreign_key "games", "competitions"
+  add_foreign_key "games", "teams", column: "away_team_id"
+  add_foreign_key "games", "teams", column: "home_team_id"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -272,4 +315,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "videos", "channels"
   add_foreign_key "videos", "competitions"
+  add_foreign_key "videos", "games"
 end
