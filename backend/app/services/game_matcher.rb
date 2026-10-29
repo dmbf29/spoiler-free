@@ -22,7 +22,7 @@ class GameMatcher
   # "Michigan St." / "A&M" / "Miami (OH)" -> comparable word sets.
   def self.tokens(text)
     text.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase
-        .gsub("&", " and ").scan(/[a-z0-9]+/)
+        .gsub(/['\u2019]/, "").gsub("&", " and ").scan(/[a-z0-9]+/)
         .map { |word| word == "st" ? "state" : word }.to_set
   end
 
@@ -30,7 +30,7 @@ class GameMatcher
   def call(video)
     return unless video.is_highlight? && video.competition_id && video.safe_title.present?
 
-    sides = video.safe_title.split(SEPARATOR, 2).map { |side| self.class.tokens(side) }
+    sides = video.safe_title.split(SEPARATOR, 2).map { |side| self.class.tokens(strip_trailer(side)) }
     return if sides.size != 2 || sides.any?(&:empty?)
 
     game = candidates(video).select { |candidate| same_matchup?(candidate, sides) }.max_by(&:kickoff_at)
@@ -39,6 +39,15 @@ class GameMatcher
   end
 
   private
+
+  # Some channels leave cruft after the matchup in the stored title:
+  # "... College Football", "... Highlights 🏈", "... FINAL MOMENTS 👀",
+  # "... l Full Game Highlights l ESPN College Football".
+  TRAILER = /\s+[l|]\s+.*\z|\s*\b(?:final moments|highlights?|college football)\b.*\z|\s*\p{So}.*\z/i
+
+  def strip_trailer(side)
+    side.sub(TRAILER, "")
+  end
 
   def candidates(video)
     Game.where(competition_id: video.competition_id, kickoff_at: (video.published_at - LOOKBACK)..video.published_at)

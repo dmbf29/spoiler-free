@@ -92,4 +92,25 @@ class GameMatcherTest < ActiveSupport::TestCase
     assert_nil @matcher.call(not_highlight)
     assert_nil @matcher.call(video("Alpha"))
   end
+
+  test "ignores channel cruft left after the matchup and apostrophes in names" do
+    haw = team("62", "Hawai'i", "Rainbow Warriors", "Hawai'i")
+    asu = team("9", "Arizona State", "Sun Devils", "Arizona State")
+    g = game(haw, asu)
+
+    ["Hawaii Rainbow Warriors vs Arizona State Sun Devils College Football",
+     "Hawaii vs Arizona State Highlights \u{1F3C8} ",
+     "Hawaii vs Arizona State FINAL MOMENTS \u{1F440}",
+     "Hawaii vs Arizona State l Full Game Highlights l ESPN College Football"].each do |title|
+      assert_equal g, @matcher.call(video(title)), title
+    end
+  end
+
+  test "uses team_aliases.yml for names ESPN abbreviates differently" do
+    del = team("48", "Delaware", "Blue Hens", "Delaware")
+    lib = team("2335", "Liberty", "Flames", "Liberty")
+    g = game(lib, del)
+
+    assert_equal g, @matcher.call(video("Liberty Flames vs Delaware Fightin' Blue Hens"))
+  end
 end

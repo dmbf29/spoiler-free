@@ -8,6 +8,10 @@ class ScheduleSynchronizer
 
   def initialize(competition, client: nil)
     @competition = competition
+    if client.nil? && competition.api_url.blank?
+      raise ArgumentError, "#{competition.slug} has no api_url; run bin/rails db:migrate or db:seed"
+    end
+
     @client = client || Espn::Client.new(base_url: competition.api_url)
   end
 

@@ -2,3 +2,10 @@
 # comment). GameMatcher already matches the ESPN short name, abbreviation and
 # full name (with or without the nickname); add a name here only when a channel
 # writes something else. Find candidates with `bin/rails schedule:unmatched`.
+
+"48": [Delaware Fightin]      # Delaware Blue Hens ("Fightin' Blue Hens")
+"41": [Connecticut]           # UConn Huskies
+"2377": [McNeese State]       # McNeese Cowboys
+"2116": [UFC]                 # UCF Knights (a recurring ESPN typo)
+"252": [Brigham Young]        # BYU Cougars
+"155": [North Dakota Flying]  # North Dakota Fighting Hawks (FOX typo)
