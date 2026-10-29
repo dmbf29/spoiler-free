@@ -94,7 +94,7 @@ function Duration({ source }) {
   )
 }
 
-function SourceActions({ source, multiple, onPlay }) {
+export function SourceActions({ source, multiple, onPlay }) {
   const region = describeRegions(source.region_restriction)
   const unavailable = source.embeddable === false
   const label = unavailable

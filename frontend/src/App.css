@@ -409,3 +409,166 @@
     width: 85%;
   }
 }
+
+/* --- Weekly schedule --- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.schedule__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.week-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.week-picker select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.btn--ghost {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+}
+
+.btn--ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.schedule--loading {
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.schedule__day {
+  margin-bottom: 28px;
+}
+
+.schedule__heading {
+  font-size: 1rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.game-list {
+  display: grid;
+  gap: 10px;
+}
+
+.game {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+}
+
+.game__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.game__teams {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.game__at {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.team {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.team__logo {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Team logos are drawn for light backgrounds. */
+  background: #f4f4f5;
+  border-radius: 6px;
+}
+
+.team__logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.team__rank {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.game__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.game__tv {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 0.75rem;
+}
+
+.game__status {
+  margin: 10px 0 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.game .card__actions {
+  margin-top: 12px;
+}

@@ -20,6 +20,10 @@ export const api = {
   listVideos: ({ sport, competition, since, before } = {}) =>
     request('/videos', { sport, competition, since, before }),
 
+  // GET /api/v1/games?competition=&season=&week= (defaults to the current week)
+  listGames: ({ competition, season, week } = {}) =>
+    request('/games', { competition, season, week }),
+
   // GET /api/v1/sports
   listSports: () => request('/sports'),
 }

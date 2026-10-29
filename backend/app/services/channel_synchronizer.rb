@@ -22,6 +22,7 @@ class ChannelSynchronizer
     @client = client
     @lookback = lookback
     @classifier = VideoClassifier.new(competitions: Competition.active.includes(:sport))
+    @matcher = GameMatcher.new
   end
 
   def call
@@ -103,6 +104,7 @@ class ChannelSynchronizer
       raw_payload: upload.raw
     )
     video.save!
+    @matcher.call(video)
     video
   rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
     # A concurrent sync (the poll and a WebSub push can overlap) saved this

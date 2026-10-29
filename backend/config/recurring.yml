@@ -19,6 +19,9 @@ production:
   renew_youtube_subscriptions:
     class: RenewYoutubeSubscriptionsJob
     schedule: every 4 hours
+  sync_college_football_schedule:
+    class: SyncCollegeFootballScheduleJob
+    schedule: every 30 minutes
 
 # To exercise the recurring job locally, uncomment below and run `bin/jobs`:
 # development:

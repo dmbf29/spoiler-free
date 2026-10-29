@@ -1,6 +1,7 @@
 class Competition < ApplicationRecord
   belongs_to :sport
   has_many :videos, dependent: :nullify
+  has_many :games, dependent: :destroy
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true

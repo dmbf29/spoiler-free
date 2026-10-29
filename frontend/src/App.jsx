@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import HighlightsPage from './pages/HighlightsPage.jsx'
+import SchedulePage from './pages/SchedulePage.jsx'
 import './App.css'
 
 export default function App() {
@@ -25,6 +26,8 @@ export default function App() {
         {/* URLs are bookmarkable: /, /:sportSlug, /:sportSlug/:competitionSlug */}
         <Route path="/" element={<HighlightsPage />} />
         <Route path="/:sportSlug" element={<HighlightsPage />} />
+        {/* College football is a weekly schedule: /football/college-football?week=9 */}
+        <Route path="/football/college-football" element={<SchedulePage competition="college-football" />} />
         <Route path="/:sportSlug/:competitionSlug" element={<HighlightsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
