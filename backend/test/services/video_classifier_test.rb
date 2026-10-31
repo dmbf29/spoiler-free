@@ -253,8 +253,14 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
                  safe_title("Penn State at Michigan | Extended Highlights | Big Ten Football | 10/17/2026")
   end
 
-  test "keeps only the Extended Highlights cut for Big Ten and Big 12" do
-    assert_nil safe_title("Nebraska at Oregon | Highlights | Big Ten Football | 10/17/2026")
+  test "keeps both the short and extended Big Ten Football cuts" do
+    assert_equal "Wisconsin vs Iowa",
+                 safe_title("Wisconsin at Iowa | Highlights | Big Ten Football | 10/31/2026")
+    assert_equal "Illinois vs Maryland",
+                 safe_title("Illinois at Maryland | Highlights | Big Ten Football | 10/31/2026")
+  end
+
+  test "keeps only the Extended Highlights cut for Big 12" do
     assert_nil safe_title("#11 Utah vs. Colorado Highlights | 2026 Monster Energy Big 12 Football")
     assert_nil safe_title("Cincinnati vs. West Virginia Condensed Game | 2026 Monster Energy Big 12 Football")
   end

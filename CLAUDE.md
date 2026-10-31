@@ -83,7 +83,7 @@ Deterministic, title-based, no AI. Kept out of the job and the YouTube client.
   Digital Network and Big 12 Conference brand titles "<conference> Football" and
   must also say "highlights"/"condensed game". They post several cuts per game,
   and the grouper never merges two uploads from one channel, so we keep one:
-  **Extended Highlights** for Big Ten and Big 12, **Game Highlights** for ACC
+  **Extended Highlights** for Big 12 (Big Ten keeps both its quick "Highlights" and the later extended cut), **Game Highlights** for ACC
   (its "Condensed Game" is rejected). Big 12 single-player clips ("Player
   Highlights vs. Team") are rejected: "Highlights" right before the separator.
 - `Classification::Result` — `highlight?`, `competition`, `safe_title`, `reason`.

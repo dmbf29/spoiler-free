@@ -33,10 +33,12 @@ module Classification
     REQUIRED = [/college football|condensed game|big ten highlights|#{CONFERENCE_BRAND}/i].freeze
     CONFERENCE_GAME = /highlights|condensed game/i
 
-    # Big Ten and Big 12 post several cuts of every game ("Highlights", "Extended
-    # Highlights", and for the Big 12 "Condensed Game"). Keep only the extended
-    # cut so each game isn't listed 2-3 times.
-    EXTENDED_ONLY_BRAND = /(?:big ten|big 12) football/i
+    # The Big 12 posts several cuts of every game ("Highlights", "Extended
+    # Highlights", "Condensed Game"). Keep only the extended cut so each game
+    # isn't listed 2-3 times. The Big Ten posts a short "Highlights" right after
+    # the game and the "Extended Highlights" hours later; we keep both so the
+    # short one is available immediately.
+    EXTENDED_ONLY_BRAND = /big 12 football/i
 
     # ESPN posts "... HALFTIME HIGHLIGHTS" packages too; they aren't a full-game
     # recap and "HALFTIME" ends up glued to a team name, so drop them outright.
