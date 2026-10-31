@@ -94,7 +94,7 @@ function Duration({ source }) {
   )
 }
 
-export function SourceActions({ source, multiple, onPlay }) {
+export function SourceActions({ source, multiple, onPlay, showDuration = multiple }) {
   const region = describeRegions(source.region_restriction)
   const unavailable = source.embeddable === false
   const label = unavailable
@@ -108,7 +108,7 @@ export function SourceActions({ source, multiple, onPlay }) {
       <button className="btn" onClick={onPlay} disabled={unavailable}>
         {label}
       </button>
-      {multiple && <Duration source={source} />}
+      {showDuration && <Duration source={source} />}
       <span
         className={`card__region${region.restricted ? ' card__region--limited' : ''}`}
         title={region.title}

@@ -47,6 +47,7 @@ export default function GameRow({ game }) {
             key={source.id}
             source={source}
             multiple={multiple}
+            showDuration
             onPlay={() => setPlayingId(source.id)}
           />
         ))
