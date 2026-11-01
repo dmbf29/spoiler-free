@@ -54,6 +54,7 @@ namespace :youtube do
        "ones and demotes highlights that no longer qualify. No API calls."
   task reclassify: :environment do
     classifier = VideoClassifier.new(competitions: Competition.active.includes(:sport))
+    matcher = GameMatcher.new
     promoted = 0
     demoted = 0
 
@@ -63,10 +64,11 @@ namespace :youtube do
 
       if result.highlight? && !video.is_highlight?
         video.update!(competition: result.competition, safe_title: result.safe_title, is_highlight: true)
+        matcher.call(video)
         promoted += 1
         puts "  + #{result.competition.slug}: #{result.safe_title}"
       elsif !result.highlight? && video.is_highlight?
-        video.update!(competition: nil, safe_title: nil, is_highlight: false)
+        video.update!(competition: nil, safe_title: nil, game: nil, is_highlight: false)
         demoted += 1
         puts "  - #{video.original_title}"
       end
