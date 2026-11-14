@@ -41,9 +41,9 @@ class GameMatcher
   private
 
   # Some channels leave cruft after the matchup in the stored title:
-  # "... College Football", "... Highlights 🏈", "... FINAL MOMENTS 👀",
+  # "... College Football", "... Aztecs Football" (CBS), "... Highlights 🏈", "... FINAL MOMENTS 👀",
   # "... l Full Game Highlights l ESPN College Football".
-  TRAILER = /\s+[l|]\s+.*\z|\s*\b(?:final moments|highlights?|college football)\b.*\z|\s*\p{So}.*\z/i
+  TRAILER = /\s+[l|]\s+.*\z|\s*\b(?:final moments|highlights?|college football|football)\b.*\z|\s*\p{So}.*\z/i
 
   def strip_trailer(side)
     side.sub(TRAILER, "")

@@ -113,4 +113,21 @@ class GameMatcherTest < ActiveSupport::TestCase
 
     assert_equal g, @matcher.call(video("Liberty Flames vs Delaware Fightin' Blue Hens"))
   end
+
+  test "strips a trailing 'Football' and matches misspelled or longer names via aliases" do
+    sdsu = team("21", "San Diego State", "Aztecs", "San Diego State")
+    wsu = team("265", "Washington State", "Cougars", "Washington State")
+    g1 = game(wsu, sdsu)
+    assert_equal g1, @matcher.call(video("Washington State Cougars vs San Diego State Aztecs Football"))
+
+    ull = team("309", "Louisiana", "Ragin' Cajuns", "Louisiana")
+    ulm = team("2433", "UL Monroe", "Warhawks", "UL Monroe")
+    g2 = game(ull, ulm)
+    assert_equal g2, @matcher.call(video("Lousiana Ragin' Cajuns vs UL Monroe Warhawks"))
+
+    shsu = team("2534", "Sam Houston", "Bearkats", "Sam Houston")
+    jsu = team("55", "Jacksonville State", "Gamecocks", "Jacksonville State")
+    g3 = game(shsu, jsu)
+    assert_equal g3, @matcher.call(video("Sam Houston State vs Jacksonville State"))
+  end
 end
