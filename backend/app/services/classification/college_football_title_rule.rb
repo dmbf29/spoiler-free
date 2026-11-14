@@ -22,8 +22,8 @@ module Classification
     #
     # NBC also labels Big Ten games "BIG TEN HIGHLIGHTS" instead of "COLLEGE
     # FOOTBALL HIGHLIGHTS". NBC's Big Ten basketball uploads would match too, but
-    # the "Highlights" label is the only signal in the title; revisit if
-    # basketball is ever added.
+    # the "Highlights" label is the only signal in the title, so basketball is
+    # rejected explicitly (see REJECT).
     #
     # The conference channels (Big Ten, ACC, Big 12) brand titles "<conference>
     # Football". Their channels also post non-game clips, and the Big Ten's " at "
@@ -50,7 +50,11 @@ module Classification
     # Big 12 also posts single-player spotlights, "Drew Mestemaker Highlights vs.
     # #20 Houston". A game recap puts "Highlights" after the matchup, so the word
     # sitting right before the separator marks a player clip.
-    REJECT = [/half-?time/i, /condensed game.*\bacc football/i, /\bhighlights\s+(?:vs?\.?|at)\s/i].freeze
+    #
+    # Basketball shares the signals above: ACC Digital Network's "2026-27 ACC
+    # Men's Basketball" uploads are also "Condensed Game"s, and NBC labels Big Ten
+    # basketball "BIG TEN HIGHLIGHTS". Reject anything that says basketball.
+    REJECT = [/half-?time/i, /basketball/i, /condensed game.*\bacc football/i, /\bhighlights\s+(?:vs?\.?|at)\s/i].freeze
 
     def safe_title_for(title)
       return unless REQUIRED.all? { |pattern| title.match?(pattern) }

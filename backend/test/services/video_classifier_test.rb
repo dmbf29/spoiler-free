@@ -271,6 +271,12 @@ class VideoClassifierCollegeFootballTest < ActiveSupport::TestCase
     assert_nil safe_title("Louisville vs. Syracuse Condensed Game | 2026 ACC Football")
   end
 
+  test "rejects college basketball uploads that share football's title signals" do
+    assert_nil safe_title("SIU-Edwardsville vs. Duke Condensed Game | 2026-27 ACC Men's Basketball")
+    assert_nil safe_title("South Carolina vs. Clemson Condensed Game | 2026-27 ACC Women’s Basketball")
+    assert_nil safe_title("Michigan vs. Ohio State | BIG TEN BASKETBALL HIGHLIGHTS | 1/10/27 | NBC Sports")
+  end
+
   test "classifies Big 12 Conference extended highlights, stripping AP rankings" do
     assert_equal "Utah vs Colorado",
                  safe_title("#11 Utah vs. Colorado Extended Highlights | 2026 Monster Energy Big 12 Football")
