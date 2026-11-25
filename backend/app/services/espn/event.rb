@@ -35,9 +35,11 @@ module Espn
     def home_team = team_attributes(home)
     def away_team = team_attributes(away)
 
-    # Games with a placeholder side (e.g. TBD bowl slots) can't be stored.
+    # Games with a placeholder side (e.g. TBD playoff/bowl slots) can't be
+    # stored. ESPN fills those slots with "TBD" teams whose ids are negative
+    # ("-1", "-2"); once the matchup is set the same event id gets real teams.
     def complete?
-      home && away && home.dig("team", "id").present? && away.dig("team", "id").present?
+      real_team?(home) && real_team?(away)
     end
 
     private
@@ -46,6 +48,10 @@ module Espn
     def type_name = @data.dig("status", "type", "name")
     def home = Array(competition["competitors"]).find { |c| c["homeAway"] == "home" }
     def away = Array(competition["competitors"]).find { |c| c["homeAway"] == "away" }
+
+    def real_team?(competitor)
+      competitor&.dig("team", "id").to_s.match?(/\A[1-9]\d*\z/)
+    end
 
     def rank(competitor)
       value = competitor&.dig("curatedRank", "current")
