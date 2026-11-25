@@ -33,3 +33,8 @@ export function formatDay(iso) {
     day: 'numeric',
   })
 }
+
+// Short local weekday, e.g. "Sat" — for rows shown outside their day heading.
+export function formatWeekday(iso) {
+  return new Date(iso).toLocaleDateString(undefined, { weekday: 'short' })
+}

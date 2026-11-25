@@ -6,6 +6,7 @@ import GameRow from '../components/GameRow.jsx'
 import SourceChannels from '../components/SourceChannels.jsx'
 import WeekPicker from '../components/WeekPicker.jsx'
 import { formatDay } from '../lib/format.js'
+import useWatchlist from '../lib/useWatchlist.js'
 
 // Weekly schedule for one competition. The week lives in the URL (?week=9) so
 // it's bookmarkable; with no param the API returns the current week.
@@ -46,6 +47,11 @@ export default function SchedulePage({ competition }) {
     const all = schedule?.games ?? []
     return onlyHighlights ? all.filter((game) => game.highlights.length > 0) : all
   }, [schedule, onlyHighlights])
+
+  const { isWatched, toggle: toggleWatched } = useWatchlist()
+  // Games arrive in kickoff order, so filtering keeps that order. The watchlist
+  // is shown first; the day-by-day list below is left untouched.
+  const watchlist = useMemo(() => games.filter(isWatched), [games, isWatched])
 
   const days = useMemo(() => groupByDay(games), [games])
   const sourceItems = useMemo(
@@ -92,12 +98,36 @@ export default function SchedulePage({ competition }) {
       )}
 
       <div className={status === 'loading' ? 'schedule schedule--loading' : 'schedule'}>
+        {watchlist.length > 0 && (
+          <section className="schedule__day schedule__day--watchlist">
+            <h2 className="schedule__heading">
+              <i className="fa-solid fa-star" aria-hidden="true" /> Watchlist
+            </h2>
+            <div className="game-list">
+              {watchlist.map((game) => (
+                <GameRow
+                  key={game.id}
+                  game={game}
+                  showDay
+                  watched
+                  onToggleWatched={() => toggleWatched(game)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         {days.map(({ key, label, games: dayGames }) => (
           <section key={key} className="schedule__day">
             <h2 className="schedule__heading">{label}</h2>
             <div className="game-list">
               {dayGames.map((game) => (
-                <GameRow key={game.id} game={game} />
+                <GameRow
+                  key={game.id}
+                  game={game}
+                  watched={isWatched(game)}
+                  onToggleWatched={() => toggleWatched(game)}
+                />
               ))}
             </div>
           </section>

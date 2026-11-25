@@ -572,3 +572,33 @@
 .game .card__actions {
   margin-top: 12px;
 }
+
+/* --- Watchlist --- */
+.schedule__day--watchlist .schedule__heading {
+  color: var(--text);
+}
+
+.schedule__day--watchlist .schedule__heading .fa-star {
+  color: var(--warn);
+  margin-right: 4px;
+}
+
+.game__watch {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: -4px;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.game__watch:hover {
+  color: var(--text);
+}
+
+.game__watch--on,
+.game__watch--on:hover {
+  color: var(--warn);
+}

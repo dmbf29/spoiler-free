@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { formatKickoffTime } from '../lib/format.js'
+import { formatKickoffTime, formatWeekday } from '../lib/format.js'
 import { SourceActions } from './VideoCard.jsx'
 import VideoPlayer from './VideoPlayer.jsx'
 
 // One scheduled game: matchup, kickoff and TV, and — once a channel has
 // uploaded highlights — a way to watch them. Never shows a score or result;
 // the only state surfaced is whether highlights exist yet.
-export default function GameRow({ game }) {
+export default function GameRow({ game, watched = false, onToggleWatched, showDay = false }) {
   const [playingId, setPlayingId] = useState(null)
 
   const sources = game.highlights
@@ -23,8 +23,23 @@ export default function GameRow({ game }) {
           <Team team={game.home_team} />
         </div>
         <div className="game__info">
-          <span className="game__time">{formatKickoffTime(game.kickoff_at)}</span>
+          <span className="game__time">
+            {showDay && `${formatWeekday(game.kickoff_at)} · `}
+            {formatKickoffTime(game.kickoff_at)}
+          </span>
           {game.tv && <span className="game__tv">{game.tv}</span>}
+          {onToggleWatched && (
+            <button
+              type="button"
+              className={watched ? 'game__watch game__watch--on' : 'game__watch'}
+              onClick={onToggleWatched}
+              aria-pressed={watched}
+              aria-label={watched ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
+              title={watched ? 'Remove from watchlist' : 'Add to watchlist'}
+            >
+              <i className={watched ? 'fa-solid fa-star' : 'fa-regular fa-star'} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
 
